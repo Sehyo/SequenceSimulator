@@ -6,7 +6,18 @@
 // but I'll just go with a made-up order..
 
 Board::Board()
-{}
+{
+	// Initialize board
+	int counter = 0; // How many cards added so far
+	for(int i = 0; i < 10; i++)
+	{
+		for(int y = 0; y < 10; y++)
+		{
+
+			++counter;
+		}
+	}
+}
 
 
 Board::~Board()
