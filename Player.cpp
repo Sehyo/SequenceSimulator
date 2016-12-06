@@ -1,9 +1,12 @@
 #include "stdafx.h"
 #include "Player.h"
+#include "Board.h"
 
 
-Player::Player()
-{}
+Player::Player(Board* board)
+{
+	this->board = board;
+}
 
 
 Player::~Player()
@@ -11,5 +14,10 @@ Player::~Player()
 
 bool Player::activate() // Return true if it's our turn.
 {
-	return true; // We should have some kind of detection in case the game ended...
+	return false; // We should have some kind of detection in case the game ended...
+}
+
+int Player::performTurn()
+{
+	return 0;
 }

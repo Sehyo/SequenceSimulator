@@ -1,9 +1,12 @@
 #pragma once
+#include "Board.h"
 class Player
 {
+	Board* board;
 public:
 	bool activate();
-	Player();
+	int performTurn();
+	Player(Board* board);
 	~Player();
 };
 
