@@ -4,7 +4,7 @@
 class Board
 {
 public:
-	std::vector<BoardSlot> board;
+	std::vector<BoardSlot*> board;
 	Board();
 	~Board();
 };

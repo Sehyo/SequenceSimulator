@@ -4,6 +4,7 @@
 #include "Player.h"
 #include <vector>
 #include <iostream>
+#include <string>
 // Ah how to model this game...
 // I'm following rules found here: http://jaxgames.com/seq2.htm
 // 100 cards on the board. No jacks, so 96 cards and 4 "dead" spaces.
