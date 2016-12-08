@@ -14,6 +14,10 @@
 // 100 cards on the board. No jacks, so 96 cards and 4 "dead" spaces.
 // cardStack has 104 cards in it (all cards).
 
+// TO DO:
+// Change Board to have 2D array of BoardSlot instead of a std::vector?
+//
+//
 int main()
 {
 	Board board;
