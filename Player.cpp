@@ -10,7 +10,9 @@ Player::Player(Board* board)
 
 
 Player::~Player()
-{}
+{
+	for(int i = 0; i < this->cards.size(); i++) delete cards[i];
+}
 
 bool Player::activate() // Return true if it's our turn.
 {

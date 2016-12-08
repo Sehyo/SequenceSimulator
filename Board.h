@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "BoardSlot.h"
+
 class Board
 {
 public:
@@ -8,4 +9,3 @@ public:
 	Board();
 	~Board();
 };
-

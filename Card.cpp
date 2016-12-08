@@ -1,7 +1,8 @@
 #include "stdafx.h"
-#include "BoardSlot.h"
+#include "Card.h"
 
-BoardSlot::BoardSlot(int suit, int number)
+
+Card::Card(int suit, int number)
 {
 	this->suit = suit;
 	this->number = number;
@@ -23,14 +24,5 @@ BoardSlot::BoardSlot(int suit, int number)
 	this->card += std::to_string(number);
 }
 
-BoardSlot::BoardSlot() // Only corner pieces uses this constructor
-{
-	this->card = "DS"; // Dead Space
-	this->suit = -1;
-	this->number = -1;
-	teamChip = -1;
-}
-
-
-BoardSlot::~BoardSlot()
+Card::~Card()
 {}
