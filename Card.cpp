@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Card.h"
+#include <iostream>
 
 
 Card::Card(int suit, int number)
@@ -25,4 +26,6 @@ Card::Card(int suit, int number)
 }
 
 Card::~Card()
-{}
+{
+	std::cout << "Card Destroyed" << std::endl;
+}
