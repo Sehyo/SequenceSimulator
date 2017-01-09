@@ -8,8 +8,9 @@ class Player
 public:
 	std::vector<Card*> cards;
 	std::vector<Card*> discardedCards;
+	int team;
 	bool activate();
 	int performTurn();
-	Player(Board* board);
+	Player(Board* board, int team);
 	~Player();
 };

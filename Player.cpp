@@ -3,9 +3,10 @@
 #include "Board.h"
 
 
-Player::Player(Board* board)
+Player::Player(Board* board, int team)
 {
 	this->board = board;
+	this->team = team;
 }
 
 
@@ -16,7 +17,7 @@ Player::~Player()
 
 bool Player::activate() // Return true if it's our turn.
 {
-	return false; // We should have some kind of detection in case the game ended...
+	return true; // We should have some kind of detection in case the game ended...
 }
 
 int Player::performTurn()
