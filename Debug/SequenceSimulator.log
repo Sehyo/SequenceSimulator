@@ -1,5 +1,10 @@
 ﻿  SequenceSimulator.cpp
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\sequencesimulator.cpp(49): warning C4018: '<': signed/unsigned mismatch
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\sequencesimulator.cpp(53): warning C4018: '<': signed/unsigned mismatch
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\sequencesimulator.cpp(54): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\sequencesimulator.cpp(64): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\sequencesimulator.cpp(68): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\sequencesimulator.cpp(69): warning C4018: '<': signed/unsigned mismatch
+  Player.cpp
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(17): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(28): warning C4101: 'desiredCardIndex': unreferenced local variable
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(40): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
   SequenceSimulator.vcxproj -> C:\Users\Merlin\documents\visual studio 2015\Projects\SequenceSimulator\Debug\SequenceSimulator.exe

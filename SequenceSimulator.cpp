@@ -62,8 +62,8 @@ int main()
 	//std::cout << "Player 0 card amount: " << players[0]->cards.size() << std::endl << "player 1 card amount: " << players[1]->cards.size() << std::endl << "card stack amount: " << cardStack.size();
 	while(true) // Change to detect end condition later
 		for(int i = 0; i < players.size(); i++)
-			if(players.at(i)->activate())
-				players.at(i)->performTurn();
+			if(players[i]->activate())
+				players[i]->performTurn();
 	// Clean up
 	for(int i = 0; i < players.size(); i++)	delete players[i];
 	for(int i = 0; i < cardStack.size(); i++)	delete cardStack[i];
