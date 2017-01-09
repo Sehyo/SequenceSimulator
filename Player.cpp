@@ -26,6 +26,18 @@ int Player::performTurn()
 {
 	// Get which card we want to play
 	int desiredCardIndex;
+	if(this->isRandomPlayer)
+	{
+
+	}
+	else if(this->isLearner)
+	{
+
+	}
+	else // real player
+	{
+
+	}
 	// Place marker / Remove marker
 
 
