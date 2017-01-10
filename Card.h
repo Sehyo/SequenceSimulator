@@ -8,4 +8,3 @@ public:
 	Card(int suit, int number);
 	~Card();
 };
-

@@ -21,6 +21,7 @@ BoardSlot::BoardSlot(int suit, int number)
 			break;
 	}
 	this->card += std::to_string(number);
+	teamChip = -1;
 }
 
 BoardSlot::BoardSlot() // Only corner pieces uses this constructor

@@ -10,4 +10,3 @@ public:
 	BoardSlot(int suit, int number);
 	~BoardSlot();
 };
-

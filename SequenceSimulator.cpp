@@ -40,7 +40,7 @@ int main()
 	}
 	else if(amountOfPlayers % 2 == 0) amountOfTeams = 2;
 	else amountOfTeams = 3;
-	for(int i = 0; i < amountOfPlayers; i++) // Add players to the list
+	for(int i = 0; i < amountOfPlayers; i++) // Add players to the list 
 		players.push_back(new Player(&board, i % amountOfTeams));
 	if(amountOfPlayers == 2) cardsEach = 7;
 	else if(amountOfPlayers == 3 || amountOfPlayers == 4) cardsEach = 6;
