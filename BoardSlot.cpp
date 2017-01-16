@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "BoardSlot.h"
 
-BoardSlot::BoardSlot(int suit, int number)
+BoardSlot::BoardSlot(int suit, int number, int x, int y)
 {
 	this->suit = suit;
 	this->number = number;
+	this->x = x;
+	this->y = y;
 	switch(suit) // 0 == Spades, 1 == Clubs, 2 == Diamonds, 3 == Hearts
 	{
 		case 0:

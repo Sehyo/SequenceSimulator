@@ -1,0 +1,28 @@
+.img-container
+{
+position: relative;
+}
+
+.img-container .chip
+{
+position: absolute;
+top: 30;
+left: 30;
+z-index: 4;
+}
+
+.img-container .suit
+{
+position: absolute;
+top: 0;
+left: 60;
+z-index: 3;
+}
+
+.img-container .number
+{
+position: absolute;
+top: 0;
+left: 0;
+z-index: 1;
+}

@@ -29,43 +29,105 @@ int Player::performTurn()
 {
 	// Get which card we want to play
 	int desiredCardIndex;
+	int stopVar = -1;
 	if(this->isRandomPlayer)
 	{
 		desiredCardIndex = dis(gen) % cards.size();
 		while(!isPlayableCard(desiredCardIndex)) desiredCardIndex = dis(gen) % cards.size(); // repeat until we have a playable card.
+		std::cout << "Playable card found." << std::endl;
+		std::cout << "desired index: " << desiredCardIndex;
+		std::cout << "Card is: " << cards[desiredCardIndex]->card << std::endl;
+		std::cin >> stopVar;
 		// Accommodate for jack special cases.
 		if(cards[desiredCardIndex]->number == 11 && (cards[desiredCardIndex]->suit == 0 || cards[desiredCardIndex]->suit == 3)) // Two eyed jack
 		{
 			// Make move
+			std::cout << "Playing 2 eyed jack" << std::endl;
 			int possibleMoves = 0;
 			int desiredMove;
 			for(int i = 0; i < board->board.size(); i++)
 				if(board->board[i]->teamChip == -1 && board->board[i]->suit != -1) ++possibleMoves;
 			desiredMove = dis(gen) % possibleMoves;
-			for(int i = 0; i < board->board.size(); i++)
+			int boardIndex = 0;
+			for(boardIndex = 0; boardIndex < board->board.size(); boardIndex++)
 			{
-				if(board->board[i]->teamChip == -1 && board->board[i]->suit != -1) --desiredMove;
-				if(desiredMove == 0)
-				{
-					board->board[i]->teamChip = team; // Place team marker.
-					// Place card in discard pile.
-					discardedCards.push_back(cards.at(desiredCardIndex));
-					cards.erase(cards.begin() + desiredCardIndex);
-					// Take new card
-				}
+				if(board->board[boardIndex]->teamChip == -1 && board->board[boardIndex]->suit != -1) --desiredMove;
+				if(desiredMove == 0) break;
 			}
+			board->board[boardIndex]->teamChip = team; // Place team marker.
+											  // Place card in discard pile.
+			discardedCards.push_back(cards.at(desiredCardIndex));
+			cards.erase(cards.begin() + desiredCardIndex);
+			// Take new card
+			if(board->cardStack->size() > 0)
+			{
+				cards.push_back(board->cardStack->back());
+				board->cardStack->pop_back();
+			}
+			board->writeHTMLFile();
+			return 0;
 		}
 		else if(cards[desiredCardIndex]->number == 11) // One eyed jack
 		{
 			// Make move
+			std::cout << "Playing 1 eyed jack" << std::endl;
+			int possibleMoves = 0;
+			int desiredMove;
+			for(int i = 0; i < board->board.size(); i++) // Can probably move this above the if statement, have 2 counters, and then remove the for loop in the above one.. Can do that later..
+				if(board->board[i]->teamChip != -1 && board->board[i]->teamChip != team) ++possibleMoves;
+			desiredMove = dis(gen) % possibleMoves;
+			for(int i = 0; i < board->board.size(); i++)
+			{
+				if(board->board[i]->teamChip != -1 && board->board[i]->teamChip != team) --desiredMove;
+				if(desiredMove == 0)
+				{
+					board->board[i]->teamChip = -1;
+					discardedCards.push_back(cards.at(desiredCardIndex));
+					cards.erase(cards.begin() + desiredCardIndex);
+					if(board->cardStack->size() > 0)
+					{
+						cards.push_back(board->cardStack->back());
+						board->cardStack->pop_back();
+					}
+					board->writeHTMLFile();
+					return 0;
+				}
+			}
 		}
 		else // Normal card
 		{
+			std::cout << "Playing normal card" << std::endl;
+			std::cout << "Cards size: " << cards.size() << std::endl;
 			bool twoPossibleMoves = true;
+			int desiredMove = 0;
 			for(int i = 0; (i < board->board.size()) && twoPossibleMoves; i++)
-			{
 				if(board->board[i]->number == cards[desiredCardIndex]->number && board->board[i]->suit == cards[desiredCardIndex]->suit && board->board[i]->teamChip != -1)
 					twoPossibleMoves = false;
+			if(twoPossibleMoves) desiredMove = dis(gen) % 2;
+			for(int i = 0; i < board->board.size(); i++)
+			{
+				if(board->board[i]->number == cards[desiredCardIndex]->number && board->board[i]->suit == cards[desiredCardIndex]->suit && board->board[i]->teamChip != -1)
+					if(desiredMove == 0)
+					{
+						// Make Move
+						board->board[i]->teamChip = team;
+						discardedCards.push_back(cards.at(desiredCardIndex));
+						
+						int x = 0;
+						std::cout << "press" << std::endl;
+						std::cin >> x;
+						std::cout << "Cards size: " << cards.size() << std::endl;
+						cards.erase(cards.begin() + desiredCardIndex);
+						std::cout << "1 card erased, size: " << cards.size() << std::endl;
+						std::cin >> x;
+						std::cout << "Press" << std::endl;
+						if(board->cardStack->size() > 0)
+						{
+							cards.push_back(board->cardStack->back());
+							board->cardStack->pop_back();
+						}
+					}
+					else --desiredMove;
 			}
 		}
 	}
@@ -92,7 +154,7 @@ int Player::performTurn()
 	}
 	// Place marker / Remove marker
 
-
+	board->writeHTMLFile();
 	return 0;
 }
 

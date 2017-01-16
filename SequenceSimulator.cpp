@@ -24,9 +24,9 @@
 //
 int main()
 {
-	Board board;
 	std::vector<Player*> players;
 	std::vector<Card*> cardStack;
+	Board board(&cardStack);
 	auto engine = std::default_random_engine(std::random_device{}());
 	int amountOfPlayers;
 	int amountOfTeams;
@@ -66,6 +66,6 @@ int main()
 				players[i]->performTurn();
 	// Clean up
 	for(int i = 0; i < players.size(); i++)	delete players[i];
-	for(int i = 0; i < cardStack.size(); i++)	delete cardStack[i];
+	for(int i = 0; i < cardStack.size(); i++) delete cardStack[i];
     return 0;
 }
