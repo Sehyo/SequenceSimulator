@@ -37,6 +37,7 @@ int Player::performTurn()
 		std::cout << "Playable card found." << std::endl;
 		std::cout << "desired index: " << desiredCardIndex;
 		std::cout << "Card is: " << cards[desiredCardIndex]->card << std::endl;
+		std::cout << "Card Number: " << cards[desiredCardIndex]->number << " Card suit: " << cards[desiredCardIndex]->suit << "\n";
 		std::cin >> stopVar;
 		// Accommodate for jack special cases.
 		if(cards[desiredCardIndex]->number == 11 && (cards[desiredCardIndex]->suit == 0 || cards[desiredCardIndex]->suit == 3)) // Two eyed jack
@@ -54,6 +55,9 @@ int Player::performTurn()
 				if(board->board[boardIndex]->teamChip == -1 && board->board[boardIndex]->suit != -1) --desiredMove;
 				if(desiredMove == 0) break;
 			}
+			std::cout << "Placing team marker." << std::endl;
+			int x;
+			std::cin >> x;
 			board->board[boardIndex]->teamChip = team; // Place team marker.
 											  // Place card in discard pile.
 			discardedCards.push_back(cards.at(desiredCardIndex));
@@ -82,6 +86,9 @@ int Player::performTurn()
 				if(desiredMove == 0)
 				{
 					board->board[i]->teamChip = -1;
+					std::cout << "Removing team marker." << std::endl;
+					int x;
+					std::cin >> x;
 					discardedCards.push_back(cards.at(desiredCardIndex));
 					cards.erase(cards.begin() + desiredCardIndex);
 					if(board->cardStack->size() > 0)
@@ -94,26 +101,27 @@ int Player::performTurn()
 				}
 			}
 		}
-		else // Normal card
+		else // Normal card // Jacks can cause bugs since they can make both spots taken
 		{
 			std::cout << "Playing normal card" << std::endl;
 			std::cout << "Cards size: " << cards.size() << std::endl;
 			bool twoPossibleMoves = true;
-			int desiredMove = 0;
+			int desiredMove = 0; // A normal card can have one or two places to be chosen to be put in.
 			for(int i = 0; (i < board->board.size()) && twoPossibleMoves; i++)
 				if(board->board[i]->number == cards[desiredCardIndex]->number && board->board[i]->suit == cards[desiredCardIndex]->suit && board->board[i]->teamChip != -1)
 					twoPossibleMoves = false;
 			if(twoPossibleMoves) desiredMove = dis(gen) % 2;
 			for(int i = 0; i < board->board.size(); i++)
 			{
-				if(board->board[i]->number == cards[desiredCardIndex]->number && board->board[i]->suit == cards[desiredCardIndex]->suit && board->board[i]->teamChip != -1)
+				if(board->board[i]->number == cards[desiredCardIndex]->number && board->board[i]->suit == cards[desiredCardIndex]->suit && board->board[i]->teamChip == -1)
 					if(desiredMove == 0)
 					{
 						// Make Move
 						board->board[i]->teamChip = team;
+						std::cout << "Placing team marker." << std::endl;
+						int x;
+						std::cin >> x;
 						discardedCards.push_back(cards.at(desiredCardIndex));
-						
-						int x = 0;
 						std::cout << "press" << std::endl;
 						std::cin >> x;
 						std::cout << "Cards size: " << cards.size() << std::endl;
@@ -127,7 +135,13 @@ int Player::performTurn()
 							board->cardStack->pop_back();
 						}
 					}
-					else --desiredMove;
+					else
+					{
+						std::cout << "reducing desired move" << std::endl;
+						--desiredMove;
+						std::cout << "Its now: " << desiredMove << std::endl;
+					}
+				else std::cout << "big fat false" << std::endl;
 			}
 		}
 	}

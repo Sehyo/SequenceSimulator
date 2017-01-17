@@ -1,4 +1,12 @@
-﻿  Board.cpp
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\board.cpp(91): warning C4018: '<': signed/unsigned mismatch
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\board.cpp(104): warning C4018: '<': signed/unsigned mismatch
+﻿  Player.cpp
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(20): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(49): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(53): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(80): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(83): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(110): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(114): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(155): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(186): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\player.cpp(192): warning C4018: '<': signed/unsigned mismatch
   SequenceSimulator.vcxproj -> C:\Users\Merlin\documents\visual studio 2015\Projects\SequenceSimulator\Debug\SequenceSimulator.exe

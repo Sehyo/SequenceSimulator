@@ -20,7 +20,7 @@
 
 // TO DO:
 // Change Board to have 2D array of BoardSlot instead of a std::vector?
-//
+// Fix bug in player.cpp that doesn't place team marker
 //
 int main()
 {
