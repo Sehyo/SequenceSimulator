@@ -22,6 +22,7 @@ Player::~Player()
 
 bool Player::activate() // Return true if it's our turn.
 {
+	if(cards.size() == 0) return false;
 	return true; // We should have some kind of detection in case the game ended...
 }
 
@@ -76,7 +77,8 @@ int Player::performTurn()
 			if(twoPossibleMoves) desiredMove = dis(gen) % 2;
 			for(int i = 0; i < board->board.size(); i++)
 			{
-				if(board->board[i]->number == cards[desiredCardIndex]->number && board->board[i]->suit == cards[desiredCardIndex]->suit && board->board[i]->teamChip == -1)
+				std::cout << "NUMBER BEFORE CRASH: " << desiredCardIndex << std::endl;                   // desiredCardIndex have a value one bigger of the last index in cards[] but why?
+				if(board->board[i]->number == cards[desiredCardIndex]->number && board->board[i]->suit == cards[desiredCardIndex]->suit && board->board[i]->teamChip == -1) // <-- Subscript index error? - Desired card index 1 too big?
 					if(desiredMove == 0)
 					{
 						// Make Move
@@ -110,7 +112,7 @@ int Player::performTurn()
 	}
 	// Place marker / Remove marker
 
-	board->writeHTMLFile();
+	//board->writeHTMLFile();
 	return 0;
 }
 
