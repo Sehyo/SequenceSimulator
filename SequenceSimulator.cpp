@@ -19,9 +19,7 @@
 // The 2 decisions above were made since it feels weird to have those rules in a digitalized version and it shouldn't impact learning regardless.
 
 // TO DO:
-// Change Board to have 2D array of BoardSlot instead of a std::vector?
-// Fix bug in player.cpp that doesn't place team marker
-//
+// Implement function to check for sequences (end conditions).
 int main()
 {
 	std::vector<Player*> players;

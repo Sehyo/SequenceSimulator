@@ -191,8 +191,9 @@ bool Player::isPlayableCard(int index) // Make sure it's not a dead card
 	bool breakOnNext = false;
 	for(int i = 0; i < board->board.size(); i++)
 		if(board->board[i]->number == desiredNumber && board->board[i]->suit == desiredSuit)
-			if(board->board[i]->teamChip == -1) return true;
-			else if(breakOnNext) break;
+			if(board->board[i]->teamChip == -1) return true; // There is somewhere to place this
+			else if(breakOnNext && board->board[i]->teamChip == -1) return true;
+			else if(breakOnNext) return false; // A jack must have been used to place a card on one of the spots.
 			else breakOnNext = true;
-	return true;
+	return false;
 }
