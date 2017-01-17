@@ -14,6 +14,11 @@ public:
 	bool activate();
 	bool isPlayableCard(int index);
 	int performTurn();
+
+	void useCard(int desiredCardIndex);
+
+	void takeCard();
+
 	bool isRandomPlayer;
 	bool isLearner;
 	std::random_device rd;
