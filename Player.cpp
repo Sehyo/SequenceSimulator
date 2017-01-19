@@ -77,13 +77,13 @@ int Player::performTurn()
 			if(twoPossibleMoves) desiredMove = dis(gen) % 2;
 			for(int i = 0; i < board->board.size(); i++)
 			{
-				std::cout << "NUMBER BEFORE CRASH: " << desiredCardIndex << std::endl;                   // desiredCardIndex have a value one bigger of the last index in cards[] but why?
 				if(board->board[i]->number == cards[desiredCardIndex]->number && board->board[i]->suit == cards[desiredCardIndex]->suit && board->board[i]->teamChip == -1) // <-- Subscript index error? - Desired card index 1 too big?
 					if(desiredMove == 0)
 					{
 						// Make Move
 						board->board[i]->teamChip = team;
 						useCard(desiredCardIndex);
+						return 0;
 					}
 					else --desiredMove;
 			}
