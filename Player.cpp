@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "Board.h"
 #include <random>
+#include <fstream>
 #include <iostream>
 
 
@@ -11,6 +12,16 @@ Player::Player(Board* board, int team)
 	this->team = team;
 	this->isRandomPlayer = true;
 	this->isLearner = false;
+	gen = std::mt19937(rd());
+}
+
+Player::Player(Board* board, int team, bool isRealPlayer)
+{
+	this->board = board;
+	this->team = team;
+	this->isRandomPlayer = false;
+	this->isLearner = false;
+	isRealPlayer ? this->isLearner = false : this->isLearner = true;
 	gen = std::mt19937(rd());
 }
 
@@ -48,6 +59,7 @@ int Player::performTurn()
 				if(desiredMove == 0) break;
 			}
 			board->board[boardIndex]->teamChip = team; // Place team marker.
+			board->checkSequence(boardIndex);
 			useCard(desiredCardIndex);
 			return 0;
 		}
@@ -62,7 +74,7 @@ int Player::performTurn()
 				if(board->board[i]->teamChip != -1 && board->board[i]->teamChip != team) --desiredMove;
 				if(desiredMove == 0)
 				{
-					board->board[i]->teamChip = -1;
+					board->board[i]->teamChip = -1; // NEED TO ADD LATER TO CHECK IF THIS SLOT IS PART OF AN EXISTING SEQUENCE THEN DON'T ALLOW THIS
 					useCard(desiredCardIndex);
 					return 0;
 				}
@@ -82,6 +94,7 @@ int Player::performTurn()
 					{
 						// Make Move
 						board->board[i]->teamChip = team;
+						board->checkSequence(i);
 						useCard(desiredCardIndex);
 						return 0;
 					}
@@ -95,6 +108,21 @@ int Player::performTurn()
 	}
 	else // real player // Make this part use input from a file from js or something
 	{
+		writeHTMLFile();
+		std::cout << "Done" << std::endl;
+		int b;
+		std::cin >> b;
+
+
+
+
+
+
+
+
+
+
+
 		std::cout << "Team " << team << " 's turn!\n Your Cards are:" << std::endl;
 		for(int i = 0; i < cards.size(); i++)
 		{
@@ -111,9 +139,35 @@ int Player::performTurn()
 		}
 	}
 	// Place marker / Remove marker
-
 	//board->writeHTMLFile();
 	return 0;
+}
+
+void Player::writeHTMLFile()
+{
+	std::ofstream output;
+	output.open("board.html"); // Truncate to 0~
+	output.close();
+	output.open("board.html", std::ios::out | std::ios::app);
+	output << "<html>\n<head>\n<link rel='stylesheet' type='text/css' href='css/style.css'>\n</head>\n<body>\n";
+	output << "<div id='playerStuff'>\n<p>Some Player From Team " << this->team << "</p>";
+	output << "</br>\n<p id='selectCard'>Select Card To Play.</p></br>\n";
+	output << "<table style='width: 100%'>\n<tr>\n";
+	for(int i = 0; i < this->cards.size(); i++)
+	{
+		output << "<td>\n<div class='img-container'>\n";
+		output << "<img class='suit' src='images/suit" << this->cards[i]->suit << ".png' alt=''>\n";
+		output << "<img class='number' src='images/" << this->cards[i]->number << ".png' alt=''>\n";
+		output << "<img class='cardBackground' src='images/cardbg.png' alt=''>\n";
+		output << "</div>\n</td>\n";
+	}
+	output << "</tr>\n</table>\n";
+	output << "</div>\n</br></br></br>";
+	output.close();
+	board->writeHTMLFile(true); // Add the board to the HTML file.
+	output.open("board.html", std::ios::out | std::ios::app);
+	output << "</body>\n</html>";
+	output.close();
 }
 
 void Player::useCard(int desiredCardIndex)

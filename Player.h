@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Board.h"
 #include "Card.h"
 #include <random>
@@ -16,7 +16,7 @@ public:
 	int performTurn();
 
 	void useCard(int desiredCardIndex);
-
+	void writeHTMLFile();
 	void takeCard();
 
 	bool isRandomPlayer;
@@ -25,6 +25,7 @@ public:
 	std::mt19937 gen;
 	std::uniform_int_distribution<unsigned long long> dis;
 	Player(Board* board, int team);
+	Player::Player(Board* board, int team, bool isRealPlayer); // false means learner ㅇㅅㅇ
 	
 	~Player();
 };

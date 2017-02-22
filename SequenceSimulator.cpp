@@ -11,6 +11,7 @@
 #include <iterator>
 // Ah how to model this game...
 // I'm following rules found here: http://jaxgames.com/seq2.htm
+// (They removed the link appearently, archive: https://web.archive.org/web/20160623192227/http://www.jaxgames.com/seq2.htm)
 // 100 cards on the board. No jacks, so 96 cards and 4 "dead" spaces.
 // cardStack has 104 cards in it (all cards).
 // Some things note worthing:
@@ -27,9 +28,10 @@ int main()
 	Board board(&cardStack);
 	auto engine = std::default_random_engine(std::random_device{}());
 	int amountOfPlayers;
+	int amountOfRealPlayers = 99;
 	int amountOfTeams;
 	int cardsEach;
-	std::cout << "How many players?" << std::endl;
+	std::cout << "How many players? (Total, computer and real combined)" << std::endl;
 	std::cin >> amountOfPlayers;
 	if(amountOfPlayers % 2 == 0 && amountOfPlayers % 3 == 0) // We have an amount of players that make either 2 or 3 teams possible.
 	{
@@ -38,7 +40,13 @@ int main()
 	}
 	else if(amountOfPlayers % 2 == 0) amountOfTeams = 2;
 	else amountOfTeams = 3;
-	for(int i = 0; i < amountOfPlayers; i++) // Add players to the list 
+	while(amountOfRealPlayers > amountOfPlayers)
+	{
+		std::cout << "How many real players?" << std::endl;
+		std::cin >> amountOfRealPlayers;
+	}
+	for(int i = 0; i < amountOfRealPlayers; i++) players.push_back(new Player(&board, i % amountOfTeams, true));
+	for(int i = players.size(); i < amountOfPlayers; i++) // Add players to the list
 		players.push_back(new Player(&board, i % amountOfTeams));
 	if(amountOfPlayers == 2) cardsEach = 7;
 	else if(amountOfPlayers == 3 || amountOfPlayers == 4) cardsEach = 6;
