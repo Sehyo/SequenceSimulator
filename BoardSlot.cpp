@@ -26,12 +26,14 @@ BoardSlot::BoardSlot(int suit, int number, int x, int y)
 	teamChip = -1;
 }
 
-BoardSlot::BoardSlot() // Only corner pieces uses this constructor
+BoardSlot::BoardSlot(int x, int y) // Only corner pieces uses this constructor
 {
 	this->card = "DS"; // Dead Space
 	this->suit = -1;
 	this->number = -1;
 	teamChip = -1;
+	this->x = x;
+	this->y = y;
 }
 
 

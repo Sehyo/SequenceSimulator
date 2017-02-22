@@ -20,7 +20,7 @@ Board::Board(std::vector<Card*>* cardStack)
 		{
 			// Corner slot?
 			if((i == 0 && y == 0) || (i == 0 && y == 9) || (i == 9 && y == 0) || (i == 9 && y == 9))
-				board.push_back(new BoardSlot()); // card = "DS" by default (Dead Space)
+				board.push_back(new BoardSlot(i, y)); // card = "DS" by default (Dead Space), but still need to give index
 			else
 			{
 				// Need genius way to determine what suit we are on..
@@ -39,14 +39,15 @@ Board::Board(std::vector<Card*>* cardStack)
 		}
 	}
 	int l;
-	std::cout << "BOARD HAS BEEN MADE THIS SIZE IS: " << board.size();
+	std::cout << "BOARD HAS BEEN MADE THIS SIZE IS: " << board.size() << std::endl;
 	std::cin >> l;
+	std::cout << "Calling writeHTMLFile()" << std::endl;
 	writeHTMLFile();
 }
 
 void Board::writeHTMLFile(bool bare)
 {
-	BoardSlot current;
+	BoardSlot current(-1, -1);
 	std::ofstream output;
 	if(!bare)
 	{
@@ -62,12 +63,6 @@ void Board::writeHTMLFile(bool bare)
 		for(int y = 0; y < 10; y++)
 		{
 			current = getBoardSlot(x, y);
-			if(current.teamChip == 232)
-			{
-				std::cout << "ERROR WASNT FOUND IN LOOP: X: " << x << " and Y: " << y << std::endl;
-				int a;
-				std::cin >> a;
-			}
 			output << "<td><div class='img-container'>";
 			switch(current.teamChip)
 			{
@@ -138,7 +133,7 @@ int Board::TwoDtoOneD(int x, int y)
 
 BoardSlot Board::getBoardSlot(int x, int y)
 {
-	BoardSlot placeHolder;
+	BoardSlot placeHolder(x, y);
 	placeHolder.teamChip = 232;
 	int d = TwoDtoOneD(x, y);
 	//placeHolder.card = board[i]->card;
