@@ -50,14 +50,26 @@ int Player::performTurn()
 		{	
 			int possibleMoves = 0;
 			for(int i = 0; i < board->board.size(); i++)
-				if(board->board[i]->teamChip == -1 && board->board[i]->suit != -1) ++possibleMoves;
-			desiredMove = dis(gen) % possibleMoves;
+				if(board->board[i]->teamChip == -1 && board->board[i]->suit != -1) ++possibleMoves; // If team chip is -1, its not occupied, and if suit is not -1, it is not a DS (DeadSpace).
+			desiredMove = dis(gen) % possibleMoves; // Choose a random desired move
 			int boardIndex = 0;
 			for(boardIndex = 0; boardIndex < board->board.size(); boardIndex++)
+			{
+				if(board->board[boardIndex]->suit == -1) // DS Slot
+					continue; // Skip this slot.
+				if(board->board[boardIndex]->teamChip != -1) // Slot already occupied
+					continue;
+				if(desiredMove == 0)
+					break; // We landed on our chosen move
+				--desiredMove;
+			}
+			/*
+			for(boardIndex = 0; boardIndex < board->board.size(); boardIndex++) // BUG HERE, PUTS CHIPS ON DS SQUARES!!!
 			{
 				if(board->board[boardIndex]->teamChip == -1 && board->board[boardIndex]->suit != -1) --desiredMove;
 				if(desiredMove == 0) break;
 			}
+			*/
 			board->board[boardIndex]->teamChip = team; // Place team marker.
 			board->checkSequence(boardIndex);
 			useCard(desiredCardIndex);

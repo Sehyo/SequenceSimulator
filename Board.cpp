@@ -47,6 +47,9 @@ Board::Board(std::vector<Card*>* cardStack)
 
 void Board::writeHTMLFile(bool bare)
 {
+	std::cout << "Writing to file about to occur!" << std::endl;
+	int blabla;
+	//std::cin >> blabla;
 	BoardSlot current(-1, -1);
 	std::ofstream output;
 	if(!bare)
@@ -136,13 +139,13 @@ BoardSlot Board::getBoardSlot(int x, int y)
 	BoardSlot placeHolder(x, y);
 	placeHolder.teamChip = 232;
 	int d = TwoDtoOneD(x, y);
-	//placeHolder.card = board[i]->card;
-	//placeHolder.number = board[i]->number;
-	//placeHolder.suit = board[i]->suit;
-	//placeHolder.teamChip = board[i]->teamChip;
+	placeHolder.card = board[d]->card;
+	placeHolder.number = board[d]->number;
+	placeHolder.suit = board[d]->suit;
+	placeHolder.teamChip = board[d]->teamChip;
 	 // Terrible way
 	std::cout << "SIZE OF BOARD: " << board.size();
-	for(int i = 0; i < board.size(); i++)
+	/*for(int i = 0; i < board.size(); i++)
 		if(board[i]->x == x && board[i]->y == y)
 		{
 			std::cout << "FUNCTION GAVE: " << d << std::endl;
@@ -156,6 +159,7 @@ BoardSlot Board::getBoardSlot(int x, int y)
 			std::cout << "HALLELUJAH" << std::endl;
 			std::cout << board[i]->teamChip << " is the chip" << std::endl;
 		}
+		*/
 	std::cout << "RETURNING THE PLACEHOLDER TEAMCHIP IS: " << placeHolder.teamChip << std::endl;
 	return placeHolder;
 }
