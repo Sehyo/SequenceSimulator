@@ -12,6 +12,9 @@ public:
 	std::vector<Sequence> sequences;
 	std::vector<int> sequenceIDs(int slot);
 	int TwoDtoOneD(int x, int y);
+	int winCondition = 0;
+	int amountOfTeams;
+	int team0Score, team1Score, team2Score;
 	void checkSequence(int slot);
 	void writeHTMLFile(bool bare = false);
 	BoardSlot Board::getBoardSlot(int x, int y);

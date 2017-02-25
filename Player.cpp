@@ -12,6 +12,7 @@ Player::Player(Board* board, int team)
 	this->team = team;
 	this->isRandomPlayer = true;
 	this->isLearner = false;
+	this->sequences = 0;
 	gen = std::mt19937(rd());
 }
 
@@ -21,6 +22,7 @@ Player::Player(Board* board, int team, bool isRealPlayer)
 	this->team = team;
 	this->isRandomPlayer = false;
 	this->isLearner = false;
+	this->sequences = 0;
 	isRealPlayer ? this->isLearner = false : this->isLearner = true;
 	gen = std::mt19937(rd());
 }

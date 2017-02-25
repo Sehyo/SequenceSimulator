@@ -40,6 +40,9 @@ int main()
 	}
 	else if(amountOfPlayers % 2 == 0) amountOfTeams = 2;
 	else amountOfTeams = 3;
+	board.amountOfTeams = amountOfTeams;
+	if(amountOfTeams == 3) board.winCondition = 1;
+	else board.winCondition = 2;
 	while(amountOfRealPlayers > amountOfPlayers)
 	{
 		std::cout << "How many real players?" << std::endl;

@@ -11,6 +11,7 @@ public:
 	std::vector<Card*> cards;
 	std::vector<Card*> discardedCards;
 	int team;
+	int sequences;
 	bool activate();
 	bool isPlayableCard(int index);
 	int performTurn();

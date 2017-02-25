@@ -12,6 +12,10 @@ Board::Board(std::vector<Card*>* cardStack)
 {
 	// Initialize board
 	this->cardStack = cardStack;
+	this->amountOfTeams = 0; // Main function will change this.
+	this->team0Score = 0;
+	this->team1Score = 0;
+	this->team2Score = 0;
 	int counter = 13; // How many cards remaining till suit change
 	int currentSuit = 0; // 0 == Spades, 1 == Clubs, 2 == Diamonds, 3 == Hearts
 	for(int i = 0; i < 10; i++)
@@ -104,17 +108,78 @@ void Board::checkSequence(int slot)
 	int team = board[slot]->teamChip;
 	int chipsLeft = 0, chipsRight = 0, chipsUp = 0, chipsDown = 0;
 	std::vector<int> sequenceIDsSharing; // Sequences that we would be sharing a slot with. Can be max 1 per sequence.
-	for(int x2 = x; x2 >= 0; x2--) // How far left can this sequence travel?
+	for(int x2 = x-1; x2 >= 0; x2--) // How far left can this sequence travel?
 	{
 		BoardSlot temp = *board[TwoDtoOneD(x2, y)];
-		if(temp.teamChip)
+		if(temp.teamChip == team) // The chip is on the right team.
 		{
-
-
-			++chipsLeft;
-			sequenceIDsSharing.push_back(0);
+			std::vector<int> sequenceParticipations = sequenceIDs(TwoDtoOneD(x2, y));
+			for(int i = 0; i < sequenceParticipations.size(); i++) // if sequenceIDsSharing contains one of these values already, we can't build a sequence with this, since we would share more than 1 thing.
+			{
+				if(std::find(sequenceIDsSharing.begin(), sequenceIDsSharing.end(), sequenceParticipations.at(i)) != sequenceIDsSharing.end())
+				{
+					// We already share a chip with this sequence!
+					// Therefore we can't build a sequence to the left.
+					x2 = -1; // To exit the loop
+					break;
+				}
+				else
+				{
+					// Remember that we now share a chip with this sequence.
+					sequenceIDsSharing.push_back(sequenceIDsSharing.at(i));
+				}
+			}
+			if(x2 != -1) ++chipsLeft;
+			if(chipsLeft >= 4) x2 = -1; // Exit the outher loop since we have enough chips for a sequence.
 		}
 		else break;
+	}
+	sequenceIDsSharing.clear(); // Clear sequenceIDsSharing
+	if(chipsLeft >= 4) // We can construct a sequence to the left.
+	{
+		std::vector<int> indices;
+		indices.push_back(TwoDtoOneD(x, y));
+		indices.push_back(TwoDtoOneD(x-1, y));
+		indices.push_back(TwoDtoOneD(x-2, y));
+		indices.push_back(TwoDtoOneD(x-3, y));
+		indices.push_back(TwoDtoOneD(x-4, y));
+		Sequence newSequence(team, indices);
+		sequences.push_back(newSequence);
+		switch(team)
+		{
+			case 0:
+				++team0Score;
+				if(team0Score >= winCondition)
+				{
+					// Team 0 has won!
+					// No need to continue execution of this function.
+					return;
+				}
+				break;
+			case 1:
+				++team1Score;
+				if(team1Score >= winCondition)
+				{
+					// Team 1 has won!
+					// No need to continue execution of this function.
+					return;
+				}
+				break;
+			case 2:
+				++team2Score;
+				if(team2Score >= winCondition)
+				{
+					// Team 2 has won!
+					// No need to continue execution of this function.
+					return;
+				}
+				break;
+			default:
+				std::cout << "Something is wrong?" << std::endl;
+				int blabla;
+				std::cin >> blabla;
+				break;
+		}
 	}
 }
 
