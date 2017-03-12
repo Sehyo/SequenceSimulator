@@ -19,8 +19,10 @@
 // "Dead cards" are also replaced automatically at the player's turn. No special play through needed for that.
 // The 2 decisions above were made since it feels weird to have those rules in a digitalized version and it shouldn't impact learning regardless.
 
+int atleastOnePlayerHasCards(std::vector<Player*>* players);
+
 // TO DO:
-// Implement function to check for sequences (end conditions).
+// Implement function to check for sequences (end conditions). - Done? Potentially buggy? Not sure.
 int main()
 {
 	std::vector<Player*> players;
@@ -69,12 +71,21 @@ int main()
 			cardStack.pop_back();
 		}
 	//std::cout << "Player 0 card amount: " << players[0]->cards.size() << std::endl << "player 1 card amount: " << players[1]->cards.size() << std::endl << "card stack amount: " << cardStack.size();
-	while(true) // Change to detect end condition later
+	while(atleastOnePlayerHasCards(&players) == 0) // Change to detect end condition later
+	{
 		for(int i = 0; i < players.size(); i++)
 			if(players[i]->activate())
 				players[i]->performTurn();
+	}
 	// Clean up
 	for(int i = 0; i < players.size(); i++)	delete players[i];
 	for(int i = 0; i < cardStack.size(); i++) delete cardStack[i];
     return 0;
+}
+
+int atleastOnePlayerHasCards(std::vector<Player*>* players)
+{
+	for(int i = 0; i < players->size(); i++)
+		if(players->at(i)->cards.size() > 0) return 0;
+	return -1;
 }

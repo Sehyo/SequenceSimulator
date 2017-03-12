@@ -1,5 +1,6 @@
 ========================================================================
-    CONSOLE APPLICATION : SequenceSimulator Project Overview
+    CONSOLE APPLICATION : 
+	Simulator Project Overview
 ========================================================================
 
 AppWizard has created this SequenceSimulator application for you.
@@ -29,7 +30,8 @@ Other standard files:
 
 StdAfx.h, StdAfx.cpp
     These files are used to build a precompiled header (PCH) file
-    named SequenceSimulator.pch and a precompiled types file named StdAfx.obj.
+    named 
+	Simulator.pch and a precompiled types file named StdAfx.obj.
 
 /////////////////////////////////////////////////////////////////////////////
 Other notes:
@@ -37,4 +39,13 @@ Other notes:
 AppWizard uses "TODO:" comments to indicate parts of the source code you
 should add to or customize.
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+

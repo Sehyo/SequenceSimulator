@@ -35,6 +35,12 @@ Player::~Player()
 
 bool Player::activate() // Return true if it's our turn.
 {
+	if(sequences > 0)
+	{
+		std::cout << "WE HAVE MADE THE FIRST SEQUENCE FOR TEAM: " << team << " DID IT WORK!?" << std::endl;
+		int shit;
+		std::cin >> shit;
+	}
 	if(cards.size() == 0) return false;
 	return true; // We should have some kind of detection in case the game ended...
 }
@@ -80,19 +86,22 @@ int Player::performTurn()
 		else if(cards[desiredCardIndex]->number == 11) // One eyed jack
 		{
 			int possibleMoves = 0;
+			std::cout << "DIVISION ERROR INC?" << std::endl;
 			for(int i = 0; i < board->board.size(); i++) // Can probably move this above the if statement, have 2 counters, and then remove the for loop in the above one.. Can do that later..
-				if(board->board[i]->teamChip != -1 && board->board[i]->teamChip != team) ++possibleMoves;
+				if(board->board[i]->teamChip != -1 && board->board[i]->teamChip != team && board->sequenceIDs(i).size() == 0) ++possibleMoves;
+			
 			desiredMove = dis(gen) % possibleMoves;
 			for(int i = 0; i < board->board.size(); i++)
 			{
-				if(board->board[i]->teamChip != -1 && board->board[i]->teamChip != team) --desiredMove;
+				if(board->board[i]->teamChip != -1 && board->board[i]->teamChip != team && board->sequenceIDs(i).size() == 0) --desiredMove;
 				if(desiredMove == 0)
 				{
-					board->board[i]->teamChip = -1; // NEED TO ADD LATER TO CHECK IF THIS SLOT IS PART OF AN EXISTING SEQUENCE THEN DON'T ALLOW THIS
+					board->board[i]->teamChip = -1; // NEED TO ADD LATER TO CHECK IF THIS SLOT IS PART OF AN EXISTING SEQUENCE THEN DON'T ALLOW THIS -- Fixed^
 					useCard(desiredCardIndex);
 					return 0;
 				}
 			}
+			std::cout << "DIVISION ERROR NOPE!" << std::endl;
 		}
 		else // Normal card
 		{
@@ -208,12 +217,12 @@ bool Player::isPlayableCard(int index) // Make sure it's not a dead card
 	if(desiredNumber == 11) // The card being evaluated is a jack. We have some special properties we need to accommodate.
 	{
 		// Return true if it's a two eyed jack, (Spade and hearts are one eyed).
-		// If it is a one eyed jack we must check that there is an enemy marker placed on the board.
+		// If it is a one eyed jack we must check that there is an enemy marker placed on the board that is not part of a sequence.
 		if(desiredSuit == 0 || desiredSuit == 3) return true;
 		else
 		{
 			for(int i = 0; i < board->board.size(); i++)
-				if(board->board[i]->teamChip != -1 && board->board[i]->teamChip != team) return true;
+				if(board->board[i]->teamChip != -1 && board->board[i]->teamChip != team && board->sequenceIDs(i).size() == 0) return true;
 			return false; // No marker that can be removed if we play this card
 		}
 	}
