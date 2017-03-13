@@ -108,464 +108,150 @@ void Board::checkSequence(int slot)
 	int x = (slot / 10);
 	int y = slot - x * 10;
 	int team = board[slot]->teamChip;
-	int chipsLeft = 0, chipsRight = 0, chipsUp = 0, chipsDown = 0;
+	int scoreDelta = 0;
+	int xBackTraversalChips = 0, xForwardTraversalChips = 0, yBackTraversalChips = 0, yForwardTraversalChips = 0;
 	std::vector<int> sequenceIDsSharing; // Sequences that we would be sharing a slot with. Can be max 1 per sequence.
-	int sizeBeforeHorizontal = sequences.size();
-	for(int x2 = x-1; x2 >= 0; x2--) // How far up can we go?
+	int sizeBeforeXAxisTraversal = sequences.size();
+	// Check if we can make a sequence by only traversing through X axis.
+	for(int xIterator = x - 1; xIterator >= 0; xIterator--)
 	{
-		BoardSlot temp = *board[TwoDtoOneD(x2, y)];
-		if(temp.teamChip == team || temp.suit == -1) // The chip is on the right team or a DS slot.
-		{
-			std::vector<int> sequenceParticipations = sequenceIDs(TwoDtoOneD(x2, y));
-			for(int i = 0; i < sequenceParticipations.size(); i++) // if sequenceIDsSharing contains one of these values already, we can't build a sequence with this, since we would share more than 1 thing.
+		BoardSlot temp = *board[TwoDtoOneD(xIterator, y)];
+		// Check if we can use this to help with the sequence.
+		if(!(temp.teamChip == team || temp.suit == -1)) break; // This slot is not helpful, break out.
+		// Potentially helpful, For each sequence, we can max share one slot with each. Check this won't create complications.
+		std::vector<int> sequenceParticipations = sequenceIDs(TwoDtoOneD(xIterator, y)); // Fetch all IDs of sequences that have this slot in them.
+		for(int i = 0; i < sequenceParticipations.size(); i++)
+			if(std::find(sequenceIDsSharing.begin(), sequenceIDsSharing.end(), sequenceParticipations.at(i)) != sequenceIDsSharing.end()) // Check that, if we add this slot, if we would then share 2 slots with this particular sequence.
 			{
-				if(std::find(sequenceIDsSharing.begin(), sequenceIDsSharing.end(), sequenceParticipations.at(i)) != sequenceIDsSharing.end())
-				{
-					// We already share a chip with this sequence!
-					// Therefore we can't build a sequence to the left.
-					x2 = -1; // To exit the loop
-					break;
-				}
-				else
-				{
-					// Remember that we now share a chip with this sequence.
-					sequenceIDsSharing.push_back(sequenceParticipations.at(i));
-				}
+				xIterator = -1; // We can't use this. Let's prepare for exit of this for loop.
+				break;
 			}
-			if(x2 != -1) ++chipsLeft;
-			if(chipsLeft >= 4) x2 = -1; // Exit the outher loop since we have enough chips for a sequence.
-		}
-		else break;
+			else
+				sequenceIDsSharing.push_back(sequenceParticipations.at(i)); // We can use this chip, let's save which sequence it is shared with.
+		if(xIterator != -1) ++xBackTraversalChips; // Current chip slot must be valid to add to the sequence.
+		if(xBackTraversalChips > 3) xIterator = -1; // We have enough chips for a sequence. Prepare exit.
 	}
-	std::cout << "TEST" << std::endl;
-	sequenceIDsSharing.clear(); // Clear sequenceIDsSharing
-	if(chipsLeft >= 4) // We can construct a sequence to the left.
+	// xBackTraversalChips now contains how many steps we can go in one direction to create a sequence.
+	// Check the other direction for xTraversal
+	for(int xIterator = x + 1; xIterator <= 9; xIterator++)
 	{
-		std::vector<int> indices;
-		indices.push_back(TwoDtoOneD(x, y));
-		indices.push_back(TwoDtoOneD(x-1, y));
-		indices.push_back(TwoDtoOneD(x-2, y));
-		indices.push_back(TwoDtoOneD(x-3, y));
-		indices.push_back(TwoDtoOneD(x-4, y));
-		std::cout << "Creating Sequence UP!" << std::endl;
-
+		BoardSlot temp = *board[TwoDtoOneD(xIterator, y)];
+		if(!(temp.teamChip == team || temp.suit == -1)) break;
+		std::vector<int> sequenceParticipations = sequenceIDs(TwoDtoOneD(xIterator, y));
+		for(int i = 0; i < sequenceParticipations.size(); i++)
+			if(std::find(sequenceIDsSharing.begin(), sequenceIDsSharing.end(), sequenceParticipations.at(i)) != sequenceIDsSharing.end())
+			{
+				xIterator = 10;
+				break;
+			}
+			else
+				sequenceIDsSharing.push_back(sequenceParticipations.at(i));
+		if(xIterator != -1) ++xForwardTraversalChips;
+		if(xForwardTraversalChips > 3) xIterator = 10;
+	}
+	sequenceIDsSharing.clear(); // Clear some crap.
+	// Do the same but for Y Axis traversal.
+	for(int yIterator = y - 1; yIterator >= 0; yIterator--)
+	{
+		BoardSlot temp = *board[TwoDtoOneD(x, yIterator)];
+		if(!(temp.teamChip == team || temp.suit == -1)) break;
+		std::vector<int> sequenceParticipations = sequenceIDs(TwoDtoOneD(x, yIterator));
+		for(int i = 0; i < sequenceParticipations.size(); i++)
+			if(std::find(sequenceIDsSharing.begin(), sequenceIDsSharing.end(), sequenceParticipations.at(i)) != sequenceIDsSharing.end())
+			{
+				yIterator = -1;
+				break;
+			}
+			else
+				sequenceIDsSharing.push_back(sequenceParticipations.at(i));
+		if(yIterator != -1) ++yBackTraversalChips;
+		if(yBackTraversalChips > 3) yIterator = -1;
+	}
+	for(int yIterator = y + 1; yIterator <= 9; yIterator++)
+	{
+		BoardSlot temp = *board[TwoDtoOneD(x, yIterator)];
+		if(!(temp.teamChip == team || temp.suit == -1)) break;
+		std::vector<int> sequenceParticipations = sequenceIDs(TwoDtoOneD(x, yIterator));
+		for(int i = 0; i < sequenceParticipations.size(); i++)
+			if(std::find(sequenceIDsSharing.begin(), sequenceIDsSharing.end(), sequenceParticipations.at(i)) != sequenceIDsSharing.end())
+			{
+				yIterator = 10;
+				break;
+			}
+			else
+				sequenceIDsSharing.push_back(sequenceParticipations.at(i));
+		if(yIterator != -1) ++yForwardTraversalChips;
+		if(yForwardTraversalChips > 3) yIterator = 10;
+	}
+	// Okay, now we have how far we can go in each direction.
+	// Let's create all sequences that we can make from here.
+	std::vector<int> indices;
+	if((xBackTraversalChips < 4 && xForwardTraversalChips < 4) && (xBackTraversalChips + xForwardTraversalChips >= 4)) // Can only make X sequence by going back and forth.
+	{
+		indices.push_back(TwoDtoOneD(x, y)); // Add the origin slot to the sequence.
+		for(int i = 1; i <= xBackTraversalChips; i++) indices.push_back(TwoDtoOneD(x - i, y));
+		for(int i = 1; indices.size() < 5; i++) indices.push_back(TwoDtoOneD(x + i, y));
+		std::cout << "Creating < -- X -- > Sequence" << std::endl;
 		Sequence newSequence(team, indices);
 		sequences.push_back(newSequence);
-		switch(team)
-		{
-			case 0:
-				++team0Score;
-				if(team0Score >= winCondition)
-				{
-					// Team 0 has won!
-					// No need to continue execution of this function.
-					std::cout << "Scary Function exited" << std::endl;
-					return;
-				}
-				break;
-			case 1:
-				++team1Score;
-				if(team1Score >= winCondition)
-				{
-					// Team 1 has won!
-					// No need to continue execution of this function.
-					std::cout << "Scary Function exited" << std::endl;
-					return;
-				}
-				break;
-			case 2:
-				++team2Score;
-				if(team2Score >= winCondition)
-				{
-					// Team 2 has won!
-					// No need to continue execution of this function.
-					std::cout << "Scary Function exited" << std::endl;
-					return;
-				}
-				break;
-			default:
-				std::cout << "Something is wrong?" << std::endl;
-				int blabla;
-				std::cin >> blabla;
-				break;
-		}
+		++scoreDelta;
+		indices.clear();
 	}
-	std::cout << "TEST0" << std::endl;
-	/*
-	* I couldn't think of a simple fast way to refactor the above stuff to work for all 4 directions in an elegant way
-	* So hugeeeeeeeeeee copy paste about to occur
-	* <------------------------------------------------------------------------------------------------------------------>
-	*/
-	for(int x2 = x + 1; x2 <= 9; x2++) // How far right can this sequence travel? <---- Infinite loop
+	if(xBackTraversalChips >= 4) // We can make a sequence by just going in this direction, let's make this one aswell :) (Note, if above if was true, this one can't be).
 	{
-		BoardSlot temp = *board[TwoDtoOneD(x2, y)];
-		if(temp.teamChip == team || temp.suit == -1) // The chip is on the right team or a DS slot.
-		{
-			std::vector<int> sequenceParticipations = sequenceIDs(TwoDtoOneD(x2, y));
-			for(int i = 0; i < sequenceParticipations.size(); i++) // if sequenceIDsSharing contains one of these values already, we can't build a sequence with this, since we would share more than 1 thing.
-			{
-				if(std::find(sequenceIDsSharing.begin(), sequenceIDsSharing.end(), sequenceParticipations.at(i)) != sequenceIDsSharing.end())
-				{
-					// We already share a chip with this sequence!
-					// Therefore we can't build a sequence to the left.
-					x2 = 10; // To exit the loop
-					break;
-				}
-				else
-				{
-					// Remember that we now share a chip with this sequence.
-					sequenceIDsSharing.push_back(sequenceParticipations.at(i));
-				}
-			}
-			if(x2 != 10) ++chipsRight;
-			if(chipsRight >= 4) x2 = 10; // Exit the outher loop since we have enough chips for a sequence.
-		}
-		else break;
-		std::cout << "TEST2" << std::endl;
-	}
-	std::cout << "TEST3" << std::endl;
-	sequenceIDsSharing.clear(); // Clear sequenceIDsSharing
-	if(chipsRight >= 4) // We can construct a sequence to the left.
-	{
-		std::vector<int> indices;
 		indices.push_back(TwoDtoOneD(x, y));
-		indices.push_back(TwoDtoOneD(x + 1, y));
-		indices.push_back(TwoDtoOneD(x + 2, y));
-		indices.push_back(TwoDtoOneD(x + 3, y));
-		indices.push_back(TwoDtoOneD(x + 4, y));
-		std::cout << "Creating Sequence DOWN!" << std::endl;
-
+		for(int i = 1; indices.size() < 5; i++) indices.push_back(TwoDtoOneD(x - i, y));
+		std::cout << "Creating < -- X Sequence" << std::endl;
 		Sequence newSequence(team, indices);
 		sequences.push_back(newSequence);
-		switch(team)
-		{
-			case 0:
-				++team0Score;
-				if(team0Score >= winCondition)
-				{
-					// Team 0 has won!
-					// No need to continue execution of this function.
-					std::cout << "Scary Function exited" << std::endl;
-					return;
-				}
-				break;
-			case 1:
-				++team1Score;
-				if(team1Score >= winCondition)
-				{
-					// Team 1 has won!
-					// No need to continue execution of this function.
-					std::cout << "Scary Function exited" << std::endl;
-					return;
-				}
-				break;
-			case 2:
-				++team2Score;
-				if(team2Score >= winCondition)
-				{
-					// Team 2 has won!
-					// No need to continue execution of this function.
-					std::cout << "Scary Function exited" << std::endl;
-					return;
-				}
-				break;
-			default:
-				std::cout << "Something is wrong?" << std::endl;
-				int blabla;
-				std::cin >> blabla;
-				break;
-		}
+		++scoreDelta;
+		indices.clear();
 	}
-
-	std::cout << "TEST4" << std::endl;
-	if(sequences.size() == sizeBeforeHorizontal)
+	if(xForwardTraversalChips >= 4)
 	{
-		// We did not manage to build a sequence by going only left or only right.
-		// Maybe we can make one by going left and right?
-		if(chipsLeft + chipsRight >= 4)
-		{
-			// We have enough chips to make a sequence!
-			std::vector<int> indices;
-			for(int i = 1; i <= chipsLeft; i++) // Add all the left chips
-				indices.push_back(TwoDtoOneD(x - i, y));
-			indices.push_back(TwoDtoOneD(x, y)); // Add the origin chip
-			for(int i = 1; i <= chipsRight && indices.size() < 5; i++) // Add as many right chips as we need
-				indices.push_back(TwoDtoOneD(x + i, y));
-			std::cout << "Creating Sequence UP + DOWN!" << std::endl;
-
-			Sequence newSequence(team, indices);
-			sequences.push_back(newSequence);
-			switch(team)
-			{
-				case 0:
-					++team0Score;
-					if(team0Score >= winCondition)
-					{
-						// Team 0 has won!
-						// No need to continue execution of this function.
-						std::cout << "Scary Function exited" << std::endl;
-						return;
-					}
-					break;
-				case 1:
-					++team1Score;
-					if(team1Score >= winCondition)
-					{
-						// Team 1 has won!
-						// No need to continue execution of this function.
-						std::cout << "Scary Function exited" << std::endl;
-						return;
-					}
-					break;
-				case 2:
-					++team2Score;
-					if(team2Score >= winCondition)
-					{
-						// Team 2 has won!
-						// No need to continue execution of this function.
-						std::cout << "Scary Function exited" << std::endl;
-						return;
-					}
-					break;
-				default:
-					std::cout << "Something is wrong?" << std::endl;
-					int blabla;
-					std::cin >> blabla;
-					break;
-			}
-		}
-	}
-	sequenceIDsSharing.clear();
-
-	std::cout << "TEST5" << std::endl;
-	/*
-	*
-	* Now time to check vertical sequences.
-	*
-	*/
-
-	int sizeBeforeVertical = sequences.size();
-	for(int y2 = y - 1; y2 >= 0; y2--) // How far left can this sequence travel?
-	{
-		BoardSlot temp = *board[TwoDtoOneD(x, y2)];
-		if(temp.teamChip == team || temp.suit == -1) // The chip above team or a DS slot.
-		{
-			std::vector<int> sequenceParticipations = sequenceIDs(TwoDtoOneD(x, y2));
-			for(int i = 0; i < sequenceParticipations.size(); i++) // if sequenceIDsSharing contains one of these values already, we can't build a sequence with this, since we would share more than 1 thing.
-			{
-				if(std::find(sequenceIDsSharing.begin(), sequenceIDsSharing.end(), sequenceParticipations.at(i)) != sequenceIDsSharing.end())
-				{
-					// We already share a chip with this sequence!
-					// Therefore we can't build a sequence to the left.
-					y2 = -1; // To exit the loop
-					break;
-				}
-				else
-				{
-					// Remember that we now share a chip with this sequence.
-					sequenceIDsSharing.push_back(sequenceParticipations.at(i));
-				}
-			}
-			if(y2 != -1) ++chipsUp;
-			if(chipsUp >= 4) y2 = -1; // Exit the outher loop since we have enough chips for a sequence.
-		}
-		else break;
-	}
-	sequenceIDsSharing.clear(); // Clear sequenceIDsSharing
-	if(chipsUp >= 4) // We can construct a sequence to the left.
-	{
-		std::vector<int> indices;
 		indices.push_back(TwoDtoOneD(x, y));
-		indices.push_back(TwoDtoOneD(x, y - 1));
-		indices.push_back(TwoDtoOneD(x, y - 2));
-		indices.push_back(TwoDtoOneD(x, y - 3));
-		indices.push_back(TwoDtoOneD(x, y - 4));
-		std::cout << "Creating Sequence LEFT!" << std::endl;
-
+		for(int i = 1; indices.size() < 5; i++) indices.push_back(TwoDtoOneD(x + i, y));
+		std::cout << "Creating X -- > Sequence" << std::endl;
 		Sequence newSequence(team, indices);
 		sequences.push_back(newSequence);
-		switch(team)
-		{
-			case 0:
-				++team0Score;
-				if(team0Score >= winCondition)
-				{
-					// Team 0 has won!
-					// No need to continue execution of this function.
-					std::cout << "Scary Function exited" << std::endl;
-					return;
-				}
-				break;
-			case 1:
-				++team1Score;
-				if(team1Score >= winCondition)
-				{
-					// Team 1 has won!
-					// No need to continue execution of this function.
-					std::cout << "Scary Function exited" << std::endl;
-					return;
-				}
-				break;
-			case 2:
-				++team2Score;
-				if(team2Score >= winCondition)
-				{
-					// Team 2 has won!
-					// No need to continue execution of this function.
-					std::cout << "Scary Function exited" << std::endl;
-					return;
-				}
-				break;
-			default:
-				std::cout << "Something is wrong?" << std::endl;
-				int blabla;
-				std::cin >> blabla;
-				break;
-		}
+		++scoreDelta;
+		indices.clear();
 	}
-
-	/*
-	* I couldn't think of a simple fast way to refactor the above stuff to work for all 4 directions in an elegant way
-	* So hugeeeeeeeeeee copy paste about to occur
-	* <------------------------------------------------------------------------------------------------------------------>
-	*/
-	for(int y2 = y + 1; y2 <= 9; y2++) // How far right can this sequence travel?
+	// Now do the same stuff but for the Y axis.
+	if((yBackTraversalChips < 4 && yForwardTraversalChips < 4) && (yBackTraversalChips + yForwardTraversalChips >= 4)) // Can only make Y sequence by going back and forth.
 	{
-		BoardSlot temp = *board[TwoDtoOneD(x, y2)];
-		if(temp.teamChip == team || temp.suit == -1) // The chip is on the right team or a DS slot.
-		{
-			std::vector<int> sequenceParticipations = sequenceIDs(TwoDtoOneD(x, y2));
-			for(int i = 0; i < sequenceParticipations.size(); i++) // if sequenceIDsSharing contains one of these values already, we can't build a sequence with this, since we would share more than 1 thing.
-			{
-				if(std::find(sequenceIDsSharing.begin(), sequenceIDsSharing.end(), sequenceParticipations.at(i)) != sequenceIDsSharing.end())
-				{
-					// We already share a chip with this sequence!
-					// Therefore we can't build a sequence to the left.
-					y2 = 10; // To exit the loop
-					break;
-				}
-				else
-				{
-					// Remember that we now share a chip with this sequence.
-					sequenceIDsSharing.push_back(sequenceParticipations.at(i));
-				}
-			}
-			if(y2 != 10) ++chipsDown;
-			if(chipsDown >= 4) y2 = 10; // Exit the outher loop since we have enough chips for a sequence.
-		}
-		else break;
-	}
-	sequenceIDsSharing.clear(); // Clear sequenceIDsSharing
-	if(chipsDown >= 4) // We can construct a sequence to the left.
-	{
-		std::vector<int> indices;
-		indices.push_back(TwoDtoOneD(x, y));
-		indices.push_back(TwoDtoOneD(x, y + 1));
-		indices.push_back(TwoDtoOneD(x, y + 2));
-		indices.push_back(TwoDtoOneD(x, y + 3));
-		indices.push_back(TwoDtoOneD(x, y + 4));
-		std::cout << "Creating Sequence RIGHT!" << std::endl;
-
+		indices.push_back(TwoDtoOneD(x, y)); // Add the origin slot to the sequence.
+		for(int i = 1; i <= yBackTraversalChips; i++) indices.push_back(TwoDtoOneD(x, y - i));
+		for(int i = 1; indices.size() < 5; i++) indices.push_back(TwoDtoOneD(x, y + i));
+		std::cout << "Creating < -- Y -- > Sequence" << std::endl;
 		Sequence newSequence(team, indices);
 		sequences.push_back(newSequence);
-		switch(team)
-		{
-			case 0:
-				++team0Score;
-				if(team0Score >= winCondition)
-				{
-					// Team 0 has won!
-					// No need to continue execution of this function.
-					std::cout << "Scary Function exited" << std::endl;
-					return;
-				}
-				break;
-			case 1:
-				++team1Score;
-				if(team1Score >= winCondition)
-				{
-					// Team 1 has won!
-					// No need to continue execution of this function.
-					std::cout << "Scary Function exited" << std::endl;
-					return;
-				}
-				break;
-			case 2:
-				++team2Score;
-				if(team2Score >= winCondition)
-				{
-					// Team 2 has won!
-					// No need to continue execution of this function.
-					std::cout << "Scary Function exited" << std::endl;
-					return;
-				}
-				break;
-			default:
-				std::cout << "Something is wrong?" << std::endl;
-				int blabla;
-				std::cin >> blabla;
-				break;
-		}
+		++scoreDelta;
+		indices.clear();
 	}
-
-
-	if(sequences.size() == sizeBeforeVertical)
+	if(yBackTraversalChips >= 4) // We can make a sequence by just going in this direction, let's make this one aswell :) (Note, if above if was true, this one can't be).
 	{
-		// We did not manage to build a sequence by going only left or only right.
-		// Maybe we can make one by going left and right?
-		if(chipsDown + chipsRight >= 4)
-		{
-			// We have enough chips to make a sequence!
-			std::vector<int> indices;
-			for(int i = 1; i <= chipsDown; i++) // Add all the left chips
-				indices.push_back(TwoDtoOneD(x, y - i));
-			indices.push_back(TwoDtoOneD(x, y)); // Add the origin chip
-			for(int i = 1; i <= chipsUp && indices.size() < 5; i++) // Add as many right chips as we need
-				indices.push_back(TwoDtoOneD(x, y + i));
-			std::cout << "SEQUENCE CREATED UP AND DOWN" << std::endl;
-			Sequence newSequence(team, indices);
-			sequences.push_back(newSequence);
-			switch(team)
-			{
-				case 0:
-					++team0Score;
-					if(team0Score >= winCondition)
-					{
-						// Team 0 has won!
-						// No need to continue execution of this function.
-						std::cout << "Scary Function exited" << std::endl;
-						return;
-					}
-					break;
-				case 1:
-					++team1Score;
-					if(team1Score >= winCondition)
-					{
-						// Team 1 has won!
-						// No need to continue execution of this function.
-						std::cout << "Scary Function exited" << std::endl;
-						return;
-					}
-					break;
-				case 2:
-					++team2Score;
-					if(team2Score >= winCondition)
-					{
-						// Team 2 has won!
-						// No need to continue execution of this function.
-						std::cout << "Scary Function exited" << std::endl;
-						return;
-					}
-					break;
-				default:
-					std::cout << "Something is wrong?" << std::endl;
-					int blabla;
-					std::cin >> blabla;
-					break;
-			}
-		}
+		indices.push_back(TwoDtoOneD(x, y));
+		for(int i = 1; indices.size() < 5; i++) indices.push_back(TwoDtoOneD(x, y - i));
+		std::cout << "Creating < -- Y Sequence" << std::endl;
+		Sequence newSequence(team, indices);
+		sequences.push_back(newSequence);
+		++scoreDelta;
+		indices.clear();
 	}
-	sequenceIDsSharing.clear();
+	if(yForwardTraversalChips >= 4)
+	{
+		indices.push_back(TwoDtoOneD(x, y));
+		for(int i = 1; indices.size() < 5; i++) indices.push_back(TwoDtoOneD(x, y + i));
+		std::cout << "Creating Y -- > Sequence" << std::endl;
+		Sequence newSequence(team, indices);
+		sequences.push_back(newSequence);
+		++scoreDelta;
+		indices.clear();
+	}
+	if(team == 0) team0Score += scoreDelta;
+	else if(team == 1) team1Score += scoreDelta;
+	else team2Score += scoreDelta;
 	std::cout << "Scary Function exited" << std::endl;
 }
 

@@ -20,6 +20,7 @@
 // The 2 decisions above were made since it feels weird to have those rules in a digitalized version and it shouldn't impact learning regardless.
 
 int atleastOnePlayerHasCards(std::vector<Player*>* players);
+bool noWin(Board& board);
 
 // TO DO:
 // Implement function to check for sequences (end conditions). - Done? Potentially buggy? Not sure.
@@ -71,16 +72,32 @@ int main()
 			cardStack.pop_back();
 		}
 	//std::cout << "Player 0 card amount: " << players[0]->cards.size() << std::endl << "player 1 card amount: " << players[1]->cards.size() << std::endl << "card stack amount: " << cardStack.size();
-	while(atleastOnePlayerHasCards(&players) == 0) // Change to detect end condition later
+	while(atleastOnePlayerHasCards(&players) == 0 && noWin(board)) // Change to detect end condition later
 	{
 		for(int i = 0; i < players.size(); i++)
 			if(players[i]->activate())
 				players[i]->performTurn();
 	}
+	std::cout << "Game has been completed" << std::endl;
+	std::cout << "Score of Team 0: " << board.team0Score << std::endl;
+	std::cout << "Score of Team 1: " << board.team1Score << std::endl;
+	std::cout << "Score of Team 2: " << board.team2Score << std::endl;
+	while(true)
+	{
+
+	}
 	// Clean up
 	for(int i = 0; i < players.size(); i++)	delete players[i];
 	for(int i = 0; i < cardStack.size(); i++) delete cardStack[i];
     return 0;
+}
+
+bool noWin(Board& board)
+{
+	if(board.team0Score >= board.winCondition) return false;
+	else if(board.team1Score >= board.winCondition) return false;
+	else if(board.team2Score >= board.winCondition) return false;
+	return true;
 }
 
 int atleastOnePlayerHasCards(std::vector<Player*>* players)
