@@ -1,2 +1,8 @@
-﻿  Sequence.cpp
+﻿  SequenceSimulator.cpp
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\sequencesimulator.cpp(97): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\sequencesimulator.cpp(110): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\sequencesimulator.cpp(111): warning C4018: '<': signed/unsigned mismatch
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\sequencesimulator.cpp(47): warning C4101: 'input': unreferenced local variable
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\sequencesimulator.cpp(46): warning C4101: 'calc_out': unreferenced local variable
+c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\sequencesimulator.cpp(125): warning C4018: '<': signed/unsigned mismatch
   SequenceSimulator.vcxproj -> C:\Users\Merlin\documents\visual studio 2015\Projects\SequenceSimulator\Debug\SequenceSimulator.exe

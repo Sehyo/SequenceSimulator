@@ -1,14 +1,19 @@
 // SequenceSimulator.cpp : Defines the entry point for the console application.
 //
 #include "stdafx.h"
+#include "fann.h"
 #include "Player.h"
 #include "Card.h"
+#include "Record.h"
 #include <vector>
 #include <iostream>
 #include <string>
 #include <algorithm>
 #include <random>
 #include <iterator>
+
+typedef unsigned int uint;
+
 // Ah how to model this game...
 // I'm following rules found here: http://jaxgames.com/seq2.htm
 // (They removed the link appearently, archive: https://web.archive.org/web/20160623192227/http://www.jaxgames.com/seq2.htm)
@@ -26,6 +31,23 @@ bool noWin(Board& board);
 // Implement function to check for sequences (end conditions). - Done? Potentially buggy? Not sure.
 int main()
 {
+	/* FANN Stuffs */
+	// Network design.. 96 inputs for each slot (We don't need the corner slots).
+	// 1 Input (0,1,2) for which team we want the output for.
+	// Output == Value of configuration for team in input.
+	const uint num_input = 96 + 1;
+	const uint num_output = 1; // Value of state
+	const uint num_layers = 3;
+	const uint num_neurons_hidden = 40;
+	struct fann *ann = fann_create_standard(num_layers, num_input, num_neurons_hidden, num_output);
+	// Activiation Functions //struct fann *ann = fann_create_from_file("sequence_game_double.net");
+	fann_set_activation_function_hidden(ann, FANN_SIGMOID_SYMMETRIC);
+	fann_set_activation_function_output(ann, FANN_SIGMOID_SYMMETRIC);
+	// Execution Vars
+	fann_type* calc_out;
+	fann_type input[num_input];
+	uint executions = 10000;
+	/* --- Ends --- */
 	std::vector<Player*> players;
 	std::vector<Card*> cardStack;
 	Board board(&cardStack);
@@ -72,11 +94,41 @@ int main()
 			cardStack.pop_back();
 		}
 	//std::cout << "Player 0 card amount: " << players[0]->cards.size() << std::endl << "player 1 card amount: " << players[1]->cards.size() << std::endl << "card stack amount: " << cardStack.size();
-	while(atleastOnePlayerHasCards(&players) == 0 && noWin(board)) // Change to detect end condition later
+	std::vector<Record> trainingData;
+	for(;executions > 0; executions--)
 	{
-		for(int i = 0; i < players.size(); i++)
-			if(players[i]->activate())
-				players[i]->performTurn();
+		std::vector<Record> gamePlaythrough; // Record one game in here.
+		while(atleastOnePlayerHasCards(&players) == 0 && noWin(board))
+		{
+			for(int i = 0; i < players.size(); i++)
+				if(players[i]->activate())
+				{
+					// We only need to record the states into record where it's the learners turn.
+					if(players[i]->isLearner)
+					{
+						Record currentConfig;
+						for(int boardIter = 0; boardIter < board.board.size(); boardIter++)
+						{
+							if(board.board[boardIter]->suit == -1) continue; // A "DS" slot. No need to add to inputs.
+							currentConfig.inputs.push_back(board.board[boardIter]->teamChip); // Push back what team "owns" this slot.
+						}
+						if(currentConfig.inputs.size() != 96)
+						{
+							std::cout << "Something went wrong?" << std::endl;
+							int asd;
+							std::cin >> asd;
+						}
+						// If this input model isn't sufficient enough we could also add like.. What cards we currently have here
+
+						// All board slot states have been added, let's add what team we are on.
+						currentConfig.inputs.push_back(players[i]->team);
+						gamePlaythrough.push_back(currentConfig); // Save the config.
+					}
+					players[i]->performTurn();
+				}
+			// We should successfully have recorded a game playthrough.
+			// Let's learn on it.
+		}
 	}
 	std::cout << "Game has been completed" << std::endl;
 	std::cout << "Score of Team 0: " << board.team0Score << std::endl;
