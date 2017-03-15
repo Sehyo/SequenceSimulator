@@ -47,9 +47,13 @@ int main()
 	fann_type* calc_out;
 	fann_type input[num_input];
 	uint executions = 10000;
+	fann_type *target = new fann_type();
+	fann_type *currentV = new fann_type(0);
+	float alpha = 0.1;
 	/* --- Ends --- */
 	std::vector<Player*> players;
 	std::vector<Card*> cardStack;
+	int fann_wins = 0, random_wins = 0;
 	Board board(&cardStack);
 	auto engine = std::default_random_engine(std::random_device{}());
 	int amountOfPlayers;
@@ -122,18 +126,116 @@ int main()
 
 						// All board slot states have been added, let's add what team we are on.
 						currentConfig.inputs.push_back(players[i]->team);
+						currentConfig.sequenceAmountAtInput = players[i]->sequences;
 						gamePlaythrough.push_back(currentConfig); // Save the config.
+
+						// Now let's perform the turn.
+						// Get all the possible actions.
+						// Perform the one that gives worst value for the opponent.
+						std::vector<Record> possibleDerivations;
+						for(int cCardIndex = 0; cCardIndex < players[i]->cards.size(); cCardIndex++)
+						{
+							if(!players[i]->isPlayableCard(cCardIndex)) continue;
+							//Record derivation;
+							//derivation.cardIndexUsed = cCardIndex;
+							std::vector<Record> derivations = players[i]->derivationsFromCard(cCardIndex);
+							for(int b = 0; b < derivations.size(); b++) possibleDerivations.push_back(derivations[b]);
+						}
+						int enemyTeam = 1; // I will only do training for 2 team games.
+						if(players[i]->team == 1) enemyTeam = 0;
+						for(int cDerivation = 0; cDerivation < possibleDerivations.size(); cDerivation++)
+						{
+							// Prepare input.
+							for(int cInput = 0; cInput < num_input - 1; cInput++)
+								input[cInput] = possibleDerivations[cDerivation].inputs[cInput];
+							input[num_input - 1] = enemyTeam;
+							*currentV = fann_run(ann, input)[0]; // *currentV is now the value of this state for the learning player's team.
+							possibleDerivations[cDerivation].value = *currentV; // Save the value.
+						}
+						// Find index of derivation with lowest value.
+						int lowestValuedIndex = 0;
+						for(int cDerivation = 1; cDerivation < possibleDerivations.size(); cDerivation++)
+							if(possibleDerivations[cDerivation].value < possibleDerivations[lowestValuedIndex].value) lowestValuedIndex = cDerivation;
+						// Decision of action is final!!!
+						if(possibleDerivations[lowestValuedIndex].cardRemoved)
+						{
+							players[i]->board->board[possibleDerivations[lowestValuedIndex].boardIndexUsed]->teamChip = -1;
+						}
+						else
+						{
+							players[i]->board->board[possibleDerivations[lowestValuedIndex].boardIndexUsed]->teamChip = players[i]->team;
+							players[i]->board->checkSequence(i);
+						}
+						players[i]->useCard(possibleDerivations[lowestValuedIndex].cardIndexUsed); // Remove card from hand.
 					}
-					players[i]->performTurn();
+					else players[i]->performTurn();
 				}
 			// We should successfully have recorded a game playthrough.
 			// Let's learn on it.
+			for(int currentRecord = 0; currentRecord < gamePlaythrough.size(); currentRecord++)
+			{
+				if(num_input != gamePlaythrough[currentRecord].inputs.size()) int aasd = 1 / 0; // Just to make sure nothing is wrong with recording.
+				// Prepare input.
+				for(int cInput = 0; cInput < num_input; cInput++)
+					input[cInput] = gamePlaythrough[currentRecord].inputs[cInput];
+				*currentV = fann_run(ann, input)[0]; // *currentV is now the value of this state for the learning player's team.
+				int reward;
+				fann_type sDerived;
+				if(currentRecord == gamePlaythrough.size() - 1) // Last config recorded.
+				{
+					sDerived = 0;
+					// If we won, we should have the amount of needed sequences. Otherwise we lost.
+					(gamePlaythrough[currentRecord].sequenceAmountAtInput >= board.winCondition) ? reward = 1 : reward = 0;
+					reward = 1 ? ++fann_wins : ++random_wins;
+				}
+				else
+				{
+					// Fetch derived state, prepare input.
+					for(int cInput = 0; cInput < num_input; cInput++)
+						input[cInput] = gamePlaythrough[currentRecord + 1].inputs[cInput];
+					sDerived = fann_run(ann, input)[0];
+					// Put the input back
+					for(int cInput = 0; cInput < num_input; cInput++)
+						input[cInput] = gamePlaythrough[currentRecord].inputs[cInput];
+					reward = 0;
+				}
+				*target = ((1 - alpha) * *currentV) + ((reward + sDerived) * alpha);
+				fann_train(ann, input, target);
+			}
 		}
+		// Reset stuff!!
+		for(int i = 0; i < players.size(); i++)	delete players[i];
+		for(int i = 0; i < cardStack.size(); i++) delete cardStack[i];
+		// Below stuff is just a copy paste of the stuff at the top.
+		for(int i = 0; i < amountOfRealPlayers; i++) players.push_back(new Player(&board, i % amountOfTeams, true));
+		for(int i = players.size(); i < amountOfPlayers; i++) // Add players to the list
+			players.push_back(new Player(&board, i % amountOfTeams));
+		if(amountOfPlayers == 2) cardsEach = 7;
+		else if(amountOfPlayers == 3 || amountOfPlayers == 4) cardsEach = 6;
+		else if(amountOfPlayers == 6) cardsEach = 5;
+		else if(amountOfPlayers == 8 || amountOfPlayers == 9) cardsEach = 4;
+		else if(amountOfPlayers == 10 || amountOfPlayers == 12) cardsEach = 3;
+		else return -1; // Invalid # of players.
+		for(int z = 0; z < 2; z++) // Add all cards to cardStack.
+			for(int i = 0; i < 4; i++)
+				for(int y = 1; y < 14; y++) // Start with ace
+					cardStack.push_back(new Card(i, y));
+		std::shuffle(std::begin(cardStack), std::end(cardStack), engine); // Shuffle
+		for(int i = 0; i < cardsEach; i++)
+			for(int y = 0; y < amountOfPlayers; y++)
+			{
+				players[y]->cards.push_back(cardStack.back());
+				cardStack.pop_back();
+			}
+
 	}
-	std::cout << "Game has been completed" << std::endl;
-	std::cout << "Score of Team 0: " << board.team0Score << std::endl;
-	std::cout << "Score of Team 1: " << board.team1Score << std::endl;
-	std::cout << "Score of Team 2: " << board.team2Score << std::endl;
+	std::cout << "Learning Iterations have been executed." << std::endl;
+	std::cout << "FANN Won: " << fann_wins << " times." << std::endl;
+	std::cout << "Random Won: " << random_wins << " times." << std::endl;
+	std::cout << "Note: Wins were recorded throughout gaining learning data. Not tested afterwards" << std::endl;
+	std::cout << "Information therefore only valuable if network has been trained before." << std::endl;
+	fann_save(ann, "nim_game_double.net");
+	fann_destroy(ann);
 	while(true)
 	{
 

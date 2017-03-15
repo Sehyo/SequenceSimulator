@@ -1,19 +1,20 @@
 ﻿#pragma once
 #include "Board.h"
 #include "Card.h"
+#include "Record.h"
 #include <random>
 
 class Player
 {
-	Board* board;
-	
 public:
+	Board* board;
 	std::vector<Card*> cards;
 	std::vector<Card*> discardedCards;
 	int team;
 	int sequences;
 	bool activate();
 	bool isPlayableCard(int index);
+	std::vector<Record> derivationsFromCard(int index);
 	int performTurn();
 
 	void useCard(int desiredCardIndex);

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Player.h"
 #include "Board.h"
+#include "Record.h"
 #include <random>
 #include <fstream>
 #include <iostream>
@@ -209,6 +210,15 @@ void Player::takeCard()
 		board->cardStack->pop_back();
 	}
 }
+
+std::vector<Record> Player::derivationsFromCard(int index)
+{
+	std::vector<Record> derivations;
+
+	return derivations;
+}
+
+
 
 bool Player::isPlayableCard(int index) // Make sure it's not a dead card
 {
