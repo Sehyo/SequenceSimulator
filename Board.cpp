@@ -43,9 +43,9 @@ Board::Board(std::vector<Card*>* cardStack)
 		}
 	}
 	int l;
-	std::cout << "BOARD HAS BEEN MADE THIS SIZE IS: " << board.size() << std::endl;
-	std::cin >> l;
-	std::cout << "Calling writeHTMLFile()" << std::endl;
+	//std::cout << "BOARD HAS BEEN MADE THIS SIZE IS: " << board.size() << std::endl;
+	//std::cin >> l;
+	//std::cout << "Calling writeHTMLFile()" << std::endl;
 	writeHTMLFile();
 }
 
@@ -281,7 +281,7 @@ BoardSlot Board::getBoardSlot(int x, int y)
 	placeHolder.suit = board[d]->suit;
 	placeHolder.teamChip = board[d]->teamChip;
 	 // Terrible way
-	std::cout << "SIZE OF BOARD: " << board.size();
+	//std::cout << "SIZE OF BOARD: " << board.size();
 	/*for(int i = 0; i < board.size(); i++)
 		if(board[i]->x == x && board[i]->y == y)
 		{
@@ -297,11 +297,13 @@ BoardSlot Board::getBoardSlot(int x, int y)
 			std::cout << board[i]->teamChip << " is the chip" << std::endl;
 		}
 		*/
-	std::cout << "RETURNING THE PLACEHOLDER TEAMCHIP IS: " << placeHolder.teamChip << std::endl;
+	//std::cout << "RETURNING THE PLACEHOLDER TEAMCHIP IS: " << placeHolder.teamChip << std::endl;
 	return placeHolder;
 }
 
 Board::~Board()
 {
 	for(int i = 0; i < board.size(); i++) delete board[i];
+	for(int i = 0; i < cardStack->size(); i++) delete cardStack->at(i);
+	delete cardStack;
 }

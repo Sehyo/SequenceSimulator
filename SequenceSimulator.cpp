@@ -60,6 +60,7 @@ int main()
 	int amountOfRealPlayers = 99;
 	int amountOfTeams;
 	int cardsEach;
+	bool learnerEnabled = true;
 	std::cout << "How many players? (Total, computer and real combined)" << std::endl;
 	std::cin >> amountOfPlayers;
 	if(amountOfPlayers % 2 == 0 && amountOfPlayers % 3 == 0) // We have an amount of players that make either 2 or 3 teams possible.
@@ -80,6 +81,14 @@ int main()
 	for(int i = 0; i < amountOfRealPlayers; i++) players.push_back(new Player(&board, i % amountOfTeams, true));
 	for(int i = players.size(); i < amountOfPlayers; i++) // Add players to the list
 		players.push_back(new Player(&board, i % amountOfTeams));
+
+	if(learnerEnabled)
+	{
+		// Make one random player the learner. (Assuming 0 real players)
+		players[engine() % 2]->isLearner = true;
+	}
+
+
 	if(amountOfPlayers == 2) cardsEach = 7;
 	else if(amountOfPlayers == 3 || amountOfPlayers == 4) cardsEach = 6;
 	else if(amountOfPlayers == 6) cardsEach = 5;
@@ -101,6 +110,8 @@ int main()
 	std::vector<Record> trainingData;
 	for(;executions > 0; executions--)
 	{
+		std::cout << "ENTERING EXECUTION!" << std::endl;
+		int bla;
 		std::vector<Record> gamePlaythrough; // Record one game in here.
 		while(atleastOnePlayerHasCards(&players) == 0 && noWin(board))
 		{
@@ -133,13 +144,37 @@ int main()
 						// Get all the possible actions.
 						// Perform the one that gives worst value for the opponent.
 						std::vector<Record> possibleDerivations;
+						std::cout << "OUR CARD SIZE BEFORE DISASTER: " << players[i]->cards.size() << std::endl;
+						std::cout << "GAME NUMBER: " << 10000 - executions << std::endl;
+						int isPlayableCount = 0;
 						for(int cCardIndex = 0; cCardIndex < players[i]->cards.size(); cCardIndex++)
 						{
-							if(!players[i]->isPlayableCard(cCardIndex)) continue;
+							//if(!players[i]->isPlayableCard(cCardIndex))
+							//{
+							//	++isPlayableCount;
+							//	continue;
+							//}
 							//Record derivation;
 							//derivation.cardIndexUsed = cCardIndex;
 							std::vector<Record> derivations = players[i]->derivationsFromCard(cCardIndex);
 							for(int b = 0; b < derivations.size(); b++) possibleDerivations.push_back(derivations[b]);
+						}
+						std::cout << "POSSIBLE DERIVATION COUNT B4 DISASTER: " << possibleDerivations.size() << std::endl;
+						std::cout << "isPlayableCount before disaster: " << isPlayableCount << std::endl;
+						if(isPlayableCount == 0)
+						{
+							board.writeHTMLFile();
+							for(int z = 0; z < board.board.size(); z++)
+							{
+								for(int c = 0; c < players[i]->cards.size(); c++)
+								{
+									if(players[i]->cards[c]->card == board.board[z]->card)
+									{
+										std::cout << "Card: " << board.board[z]->card << std::endl;
+										std::cout << "Team Chip Value: " << board.board[z]->teamChip << std::endl;
+									}
+								}
+							}
 						}
 						int enemyTeam = 1; // I will only do training for 2 team games.
 						if(players[i]->team == 1) enemyTeam = 0;
@@ -170,52 +205,62 @@ int main()
 					}
 					else players[i]->performTurn();
 				}
-			// We should successfully have recorded a game playthrough.
-			// Let's learn on it.
-			for(int currentRecord = 0; currentRecord < gamePlaythrough.size(); currentRecord++)
+		}
+		// We should successfully have recorded a game playthrough.
+		// Let's learn on it.
+		for(int currentRecord = 0; currentRecord < gamePlaythrough.size(); currentRecord++)
+		{
+			if(num_input != gamePlaythrough[currentRecord].inputs.size())
 			{
-				if(num_input != gamePlaythrough[currentRecord].inputs.size()) int aasd = 1 / 0; // Just to make sure nothing is wrong with recording.
-				// Prepare input.
+				std::cout << "SOMETHING IS WRONG WITH INPUT SIZE!" << std::endl;
+				int asdas;
+				std::cin >> asdas;
+			}
+			// Prepare input.
+			for(int cInput = 0; cInput < num_input; cInput++)
+				input[cInput] = gamePlaythrough[currentRecord].inputs[cInput];
+			*currentV = fann_run(ann, input)[0]; // *currentV is now the value of this state for the learning player's team.
+			int reward;
+			fann_type sDerived;
+			if(currentRecord == gamePlaythrough.size() - 1) // Last config recorded.
+			{
+				sDerived = 0;
+				// If we won, we should have the amount of needed sequences. Otherwise we lost.
+				(gamePlaythrough[currentRecord].sequenceAmountAtInput >= board.winCondition) ? reward = 1 : reward = 0;
+				reward = 1 ? ++fann_wins : ++random_wins;
+			}
+			else
+			{
+				// Fetch derived state, prepare input.
+				for(int cInput = 0; cInput < num_input; cInput++)
+					input[cInput] = gamePlaythrough[currentRecord + 1].inputs[cInput];
+				sDerived = fann_run(ann, input)[0];
+				// Put the input back
 				for(int cInput = 0; cInput < num_input; cInput++)
 					input[cInput] = gamePlaythrough[currentRecord].inputs[cInput];
-				*currentV = fann_run(ann, input)[0]; // *currentV is now the value of this state for the learning player's team.
-				int reward;
-				fann_type sDerived;
-				if(currentRecord == gamePlaythrough.size() - 1) // Last config recorded.
-				{
-					sDerived = 0;
-					// If we won, we should have the amount of needed sequences. Otherwise we lost.
-					(gamePlaythrough[currentRecord].sequenceAmountAtInput >= board.winCondition) ? reward = 1 : reward = 0;
-					reward = 1 ? ++fann_wins : ++random_wins;
-				}
-				else
-				{
-					// Fetch derived state, prepare input.
-					for(int cInput = 0; cInput < num_input; cInput++)
-						input[cInput] = gamePlaythrough[currentRecord + 1].inputs[cInput];
-					sDerived = fann_run(ann, input)[0];
-					// Put the input back
-					for(int cInput = 0; cInput < num_input; cInput++)
-						input[cInput] = gamePlaythrough[currentRecord].inputs[cInput];
-					reward = 0;
-				}
-				*target = ((1 - alpha) * *currentV) + ((reward + sDerived) * alpha);
-				fann_train(ann, input, target);
+				reward = 0;
 			}
+			*target = ((1 - alpha) * *currentV) + ((reward + sDerived) * alpha);
+			fann_train(ann, input, target);
+			std::cout << "TRAINING PERFORMED" << std::endl;
+			//std::cin >> bla;
 		}
 		// Reset stuff!!
+		board.sequences.clear();
+		board.team0Score = 0;
+		board.team1Score = 0;
+		board.team2Score = 0;
+		for(int i = 0; i < board.board.size(); i++)	board.board[i]->teamChip = -1;
 		for(int i = 0; i < players.size(); i++)	delete players[i];
+		players.clear();
 		for(int i = 0; i < cardStack.size(); i++) delete cardStack[i];
+		cardStack.clear();
 		// Below stuff is just a copy paste of the stuff at the top.
-		for(int i = 0; i < amountOfRealPlayers; i++) players.push_back(new Player(&board, i % amountOfTeams, true));
-		for(int i = players.size(); i < amountOfPlayers; i++) // Add players to the list
-			players.push_back(new Player(&board, i % amountOfTeams));
-		if(amountOfPlayers == 2) cardsEach = 7;
-		else if(amountOfPlayers == 3 || amountOfPlayers == 4) cardsEach = 6;
-		else if(amountOfPlayers == 6) cardsEach = 5;
-		else if(amountOfPlayers == 8 || amountOfPlayers == 9) cardsEach = 4;
-		else if(amountOfPlayers == 10 || amountOfPlayers == 12) cardsEach = 3;
-		else return -1; // Invalid # of players.
+		for(int i = players.size(); i < 2; i++) // Add players to the list
+			players.push_back(new Player(&board, i % 2));
+		players[engine() % 2]->isLearner = true;
+		cardsEach = 7;
+		
 		for(int z = 0; z < 2; z++) // Add all cards to cardStack.
 			for(int i = 0; i < 4; i++)
 				for(int y = 1; y < 14; y++) // Start with ace
@@ -227,7 +272,6 @@ int main()
 				players[y]->cards.push_back(cardStack.back());
 				cardStack.pop_back();
 			}
-
 	}
 	std::cout << "Learning Iterations have been executed." << std::endl;
 	std::cout << "FANN Won: " << fann_wins << " times." << std::endl;

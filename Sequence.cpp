@@ -11,7 +11,7 @@ Sequence::Sequence(int team, std::vector<int> indices)
 	std::cout << "WE MADE A SEQUENCE!?" << std::endl;
 	std::cout << "Indices: " << std::endl << indices.at(0) << std::endl << indices.at(1) << std::endl << indices.at(2) << std::endl << indices.at(3) << std::endl << indices.at(4) << std::endl;
 	int b;
-	std::cin >> b;
+	//std::cin >> b;
 }
 
 Sequence::~Sequence()

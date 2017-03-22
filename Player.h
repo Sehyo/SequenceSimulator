@@ -14,7 +14,7 @@ public:
 	int sequences;
 	bool activate();
 	bool isPlayableCard(int index);
-	std::vector<Record> derivationsFromCard(int index);
+	std::vector<Record> derivationsFromCard(int desiredCardIndex);
 	int performTurn();
 
 	void useCard(int desiredCardIndex);

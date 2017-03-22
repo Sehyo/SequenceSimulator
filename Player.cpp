@@ -40,7 +40,7 @@ bool Player::activate() // Return true if it's our turn.
 	{
 		std::cout << "WE HAVE MADE THE FIRST SEQUENCE FOR TEAM: " << team << " DID IT WORK!?" << std::endl;
 		int shit;
-		std::cin >> shit;
+		//std::cin >> shit;
 	}
 	if(cards.size() == 0) return false;
 	return true; // We should have some kind of detection in case the game ended...
@@ -135,7 +135,7 @@ int Player::performTurn()
 		writeHTMLFile();
 		std::cout << "Done" << std::endl;
 		int b;
-		std::cin >> b;
+		//std::cin >> b;
 
 
 
@@ -211,10 +211,105 @@ void Player::takeCard()
 	}
 }
 
-std::vector<Record> Player::derivationsFromCard(int index)
+std::vector<Record> Player::derivationsFromCard(int desiredCardIndex) // Card has already been checked for playability.
 {
 	std::vector<Record> derivations;
+	// Accommodate for jack special cases.
+	if(cards[desiredCardIndex]->number == 11 && (cards[desiredCardIndex]->suit == 0 || cards[desiredCardIndex]->suit == 3)) // Two eyed jack
+	{
+		int possibleMoves = 0;
+		for(int i = 0; i < board->board.size(); i++)
+			if(board->board[i]->teamChip == -1 && board->board[i]->suit != -1) ++possibleMoves; // If team chip is -1, its not occupied, and if suit is not -1, it is not a DS (DeadSpace).
+		// Go through all possible moves.
+		for(int i = 0; i < possibleMoves; i++)
+		{
+			int boardIndex = 0;
+			int desiredMove = possibleMoves - i;
+			for(boardIndex = 0; boardIndex < board->board.size(); boardIndex++)
+			{
+				if(board->board[boardIndex]->suit == -1) // DS Slot
+					continue; // Skip this slot.
+				if(board->board[boardIndex]->teamChip != -1) // Slot already occupied
+					continue;
+				if(desiredMove == 0)
+					break; // We landed on our chosen move
+				--desiredMove;
+			}
+			Record derivation;
+			derivation.boardIndexUsed = boardIndex;
+			derivation.cardIndexUsed = desiredCardIndex;
+			derivation.cardRemoved = false;
+			for(int y = 0; y < board->board.size(); y++)
+			{
+				if(board->board[y]->suit == -1) continue; // DS slot, skip.
+				if(y == boardIndex) derivation.inputs.push_back(team);
+				else derivation.inputs.push_back(board->board[y]->teamChip);
+			}
+			derivations.push_back(derivation);
+		}
+	}
+	else if(cards[desiredCardIndex]->number == 11) // One eyed jack
+	{
+		int possibleMoves = 0;
+		for(int i = 0; i < board->board.size(); i++)
+			if(board->board[i]->teamChip != -1 && board->board[i]->teamChip != team && board->sequenceIDs(i).size() == 0) ++possibleMoves;
 
+		//desiredMove = dis(gen) % possibleMoves;
+		for(int y = 0; y < possibleMoves; y++)
+		{
+			int desiredMove = possibleMoves - y;
+			for(int i = 0; i < board->board.size(); i++)
+			{
+				if(board->board[i]->teamChip != -1 && board->board[i]->teamChip != team && board->sequenceIDs(i).size() == 0) --desiredMove;
+				if(desiredMove == 0)
+				{
+					Record derivation;
+					derivation.boardIndexUsed = i;
+					derivation.cardIndexUsed = desiredCardIndex;
+					derivation.cardRemoved = true;
+					for(int z = 0; z < board->board.size(); z++)
+					{
+						if(board->board[z]->suit == -1) continue; // DS slot, skip.
+						if(z == i) derivation.inputs.push_back(-1);
+						else derivation.inputs.push_back(board->board[z]->teamChip);
+					}
+					derivations.push_back(derivation);
+				}
+			}
+		}
+	}
+	else // Normal card
+	{
+		bool twoPossibleMoves = true;
+		int possibleMoves = 1;
+		for(int i = 0; (i < board->board.size()) && twoPossibleMoves; i++)
+			if(board->board[i]->number == cards[desiredCardIndex]->number && board->board[i]->suit == cards[desiredCardIndex]->suit && board->board[i]->teamChip != -1)
+				twoPossibleMoves = false;
+		if(twoPossibleMoves) possibleMoves = 2;// desiredMove = dis(gen) % 2;
+		for(int y = 0; y < possibleMoves; y++)
+		{
+			int desiredMove = possibleMoves - y;
+			for(int i = 0; i < board->board.size(); i++)
+			{
+				if(board->board[i]->number == cards[desiredCardIndex]->number && board->board[i]->suit == cards[desiredCardIndex]->suit && board->board[i]->teamChip == -1)
+					if(desiredMove == 0)
+					{
+						Record derivation;
+						derivation.boardIndexUsed = i;
+						derivation.cardIndexUsed = desiredCardIndex;
+						derivation.cardRemoved = false;
+						for(int z = 0; z < board->board.size(); z++)
+						{
+							if(board->board[z]->suit == -1) continue; // DS slot, skip.
+							if(z == i) derivation.inputs.push_back(team);
+							else derivation.inputs.push_back(board->board[z]->teamChip);
+						}
+						derivations.push_back(derivation);
+					}
+					else --desiredMove;
+			}
+		}
+	}
 	return derivations;
 }
 
@@ -224,6 +319,8 @@ bool Player::isPlayableCard(int index) // Make sure it's not a dead card
 {
 	int desiredSuit = this->cards[index]->suit;
 	int desiredNumber = this->cards[index]->number;
+	std::string desiredCard = this->cards[index]->card;
+	std::cout << "Testing card: " << desiredSuit << desiredNumber << this->cards[index]->card << std::endl;
 	if(desiredNumber == 11) // The card being evaluated is a jack. We have some special properties we need to accommodate.
 	{
 		// Return true if it's a two eyed jack, (Spade and hearts are one eyed).
@@ -238,10 +335,21 @@ bool Player::isPlayableCard(int index) // Make sure it's not a dead card
 	}
 	bool breakOnNext = false;
 	for(int i = 0; i < board->board.size(); i++)
+	{
+		if(board->board[i]->suit == desiredSuit && board->board[i]->number == desiredNumber)
+		{
+			if(board->board[i]->teamChip == -1) return true;
+			if(breakOnNext) return false;
+			else breakOnNext = true;
+		}
+	}
+	/*
+	for(int i = 0; i < board->board.size(); i++)
 		if(board->board[i]->number == desiredNumber && board->board[i]->suit == desiredSuit)
 			if(board->board[i]->teamChip == -1) return true; // There is somewhere to place this
 			else if(breakOnNext && board->board[i]->teamChip == -1) return true;
 			else if(breakOnNext) return false; // A jack must have been used to place a card on one of the spots.
 			else breakOnNext = true;
 	return false; // <-- Not gonna happen
+	*/
 }
