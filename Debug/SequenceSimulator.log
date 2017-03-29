@@ -1,11 +1,2 @@
-﻿  Board.cpp
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\board.cpp(45): warning C4101: 'l': unreferenced local variable
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\board.cpp(55): warning C4101: 'blabla': unreferenced local variable
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\board.cpp(123): warning C4018: '<': signed/unsigned mismatch
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\board.cpp(141): warning C4018: '<': signed/unsigned mismatch
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\board.cpp(159): warning C4018: '<': signed/unsigned mismatch
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\board.cpp(175): warning C4018: '<': signed/unsigned mismatch
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\board.cpp(261): warning C4018: '<': signed/unsigned mismatch
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\board.cpp(306): warning C4018: '<': signed/unsigned mismatch
-c:\users\merlin\documents\visual studio 2015\projects\sequencesimulator\sequencesimulator\board.cpp(307): warning C4018: '<': signed/unsigned mismatch
-  SequenceSimulator.vcxproj -> C:\Users\Merlin\documents\visual studio 2015\Projects\SequenceSimulator\Debug\SequenceSimulator.exe
+﻿  Card.cpp
+  SequenceSimulator.vcxproj -> C:\Users\Merlin\Documents\Visual Studio 2015\Projects\SequenceSimulator\Debug\SequenceSimulator.exe

@@ -51,6 +51,7 @@ Board::Board(std::vector<Card*>* cardStack)
 
 void Board::writeHTMLFile(bool bare)
 {
+	//return; // Comment for speed
 	std::cout << "Writing to file about to occur!" << std::endl;
 	int blabla;
 	//std::cin >> blabla;
@@ -104,7 +105,7 @@ void Board::writeHTMLFile(bool bare)
 // Will refactor this massive function at the end of the project..
 void Board::checkSequence(int slot)
 {
-	std::cout << "Scary Function entered" << std::endl;
+	//std::cout << "Scary Function entered" << std::endl;
 	int x = (slot / 10);
 	int y = slot - x * 10;
 	int team = board[slot]->teamChip;
@@ -252,7 +253,7 @@ void Board::checkSequence(int slot)
 	if(team == 0) team0Score += scoreDelta;
 	else if(team == 1) team1Score += scoreDelta;
 	else team2Score += scoreDelta;
-	std::cout << "Scary Function exited" << std::endl;
+//	std::cout << "Scary Function exited" << std::endl;
 }
 
 std::vector<int> Board::sequenceIDs(int slot)

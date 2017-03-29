@@ -27,5 +27,5 @@ Card::Card(int suit, int number)
 
 Card::~Card()
 {
-	std::cout << "Card Destroyed" << std::endl;
+	//std::cout << "Card Destroyed" << std::endl;
 }
